@@ -30,7 +30,7 @@ class AddRoleForUserListener implements ActionListener {
             for (UserDto userDto : users) {
                 JButton btAddRole = new JButton("Add role for " + userDto.getLogin());
                 infoPanel.add(btAddRole);
-                btAddRole.addActionListener(new addRoleButtonListner(databaseClient, btAddRole.getText().split(" ")[3]));
+                btAddRole.addActionListener(new AddRoleButtonListner(databaseClient, btAddRole.getText().split(" ")[3]));
             }
             JScrollPane scroller = new JScrollPane(infoPanel);
             mainPanel.add(scroller, BorderLayout.CENTER);

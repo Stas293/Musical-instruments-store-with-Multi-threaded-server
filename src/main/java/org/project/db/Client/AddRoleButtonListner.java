@@ -11,11 +11,11 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.ArrayList;
 
-class addRoleButtonListner implements ActionListener {
+class AddRoleButtonListner implements ActionListener {
     private final DatabaseClient databaseClient;
     private final String login;
 
-    public addRoleButtonListner(DatabaseClient databaseClient, String login) {
+    public AddRoleButtonListner(DatabaseClient databaseClient, String login) {
         this.databaseClient = databaseClient;
         this.login = login;
     }
