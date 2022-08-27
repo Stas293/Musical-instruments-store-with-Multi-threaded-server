@@ -47,8 +47,11 @@ public class OrderRepository {
         PreparedStatement preparedStatement = connection.prepareStatement(queryString);
         preparedStatement.setString(1, userDto.getLogin());
         ResultSet resultSet = preparedStatement.executeQuery();
-        resultSet.next();
-        Long userId = resultSet.getLong("user_id");
+        boolean isResult = resultSet.next();
+        if (!isResult) {
+            return new ArrayList<>();
+        }
+        Long userId = Long.valueOf(resultSet.getString("user_id"));
         String queryString1 = "SELECT * FROM order_list WHERE user_id = ? order by date_created desc";
         preparedStatement = connection.prepareStatement(queryString1);
         preparedStatement.setString(1, String.valueOf(userId));
