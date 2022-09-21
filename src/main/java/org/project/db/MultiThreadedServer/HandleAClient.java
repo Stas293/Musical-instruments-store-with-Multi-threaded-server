@@ -198,7 +198,7 @@ class HandleAClient implements Runnable {
                     System.out.println(command);
                 } catch (SQLException e) {
                     multiThreadServer.connection.rollback();
-                    System.err.println(Arrays.toString(e.getStackTrace()));
+                    e.printStackTrace();
                 }
             }
         } catch (IOException | SQLException ex) {

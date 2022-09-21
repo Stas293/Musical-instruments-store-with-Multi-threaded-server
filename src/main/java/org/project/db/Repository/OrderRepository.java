@@ -1,5 +1,6 @@
 package org.project.db.Repository;
 
+import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.NotNull;
 import org.project.db.Dto.OrderDto;
 import org.project.db.Dto.UserDto;
@@ -12,7 +13,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class OrderRepository {
-    public Order insertOrder(@NotNull Connection connection, @NotNull OrderDto orderDto) throws SQLException {
+    public synchronized Order insertOrder(@NotNull Connection connection, @NotNull OrderDto orderDto) throws SQLException {
         String queryString = "SELECT user_id FROM user_list WHERE login = ?";
         PreparedStatement preparedStatement = connection.prepareStatement(queryString);
         preparedStatement.setString(1, orderDto.getLogin());
@@ -42,8 +43,8 @@ public class OrderRepository {
                 new StatusRepository().getStatusById(connection, statusId), Integer.parseInt(resultSet.getString("closed")) == 1);
     }
 
-    public ArrayList<Order> getAllOrders(@NotNull Connection connection, @NotNull UserDto userDto) throws SQLException {
-        String queryString = "SELECT user_id FROM user_list WHERE login = ?";
+    public synchronized ArrayList<Order> getAllOrders(@NotNull Connection connection, @NotNull UserDto userDto) throws SQLException {
+        @Language("MySQL") String queryString = "SELECT user_id FROM user_list WHERE login = ?";
         PreparedStatement preparedStatement = connection.prepareStatement(queryString);
         preparedStatement.setString(1, userDto.getLogin());
         ResultSet resultSet = preparedStatement.executeQuery();
@@ -52,30 +53,30 @@ public class OrderRepository {
             return new ArrayList<>();
         }
         Long userId = Long.valueOf(resultSet.getString("user_id"));
-        String queryString1 = "SELECT * FROM order_list WHERE user_id = ? order by date_created desc";
+        @Language("MySQL") String queryString1 = "SELECT * FROM order_list WHERE user_id = ? order by date_created desc";
         preparedStatement = connection.prepareStatement(queryString1);
         preparedStatement.setString(1, String.valueOf(userId));
         resultSet = preparedStatement.executeQuery();
         ArrayList<Order> orders = new ArrayList<>();
         while (resultSet.next()) {
-            String queryString2 = "SELECT * FROM status WHERE status_id = ?";
+            @Language("MySQL") String queryString2 = "SELECT * FROM status WHERE status_id = ?";
             PreparedStatement preparedStatement1 = connection.prepareStatement(queryString2);
             preparedStatement1.setString(1, resultSet.getString("status_id"));
             ResultSet resultSet1 = preparedStatement1.executeQuery();
             resultSet1.next();
             Status status = new Status(resultSet1.getLong("status_id"), resultSet1.getString("code"), resultSet1.getString("name"), Integer.parseInt(resultSet1.getString("closed")) == 1);
-            String queryString3 = "SELECT * FROM instrument_order WHERE order_id = ?";
+            @Language("MySQL") String queryString3 = "SELECT * FROM instrument_order WHERE order_id = ?";
             PreparedStatement preparedStatement2 = connection.prepareStatement(queryString3);
             preparedStatement2.setString(1, resultSet.getString("order_id"));
             ResultSet resultSet2 = preparedStatement2.executeQuery();
             ArrayList<InstrumentOrder> instruments = new ArrayList<>();
             while (resultSet2.next()) {
-                String queryString4 = "SELECT * FROM instrument_list WHERE instrument_id = ?";
+                @Language("MySQL") String queryString4 = "SELECT * FROM instrument_list WHERE instrument_id = ?";
                 PreparedStatement preparedStatement3 = connection.prepareStatement(queryString4);
                 preparedStatement3.setString(1, resultSet2.getString("instrument_id"));
                 ResultSet resultSet3 = preparedStatement3.executeQuery();
                 resultSet3.next();
-                String queryString5 = "SELECT * FROM status WHERE status_id = ?";
+                @Language("MySQL") String queryString5 = "SELECT * FROM status WHERE status_id = ?";
                 PreparedStatement preparedStatement4 = connection.prepareStatement(queryString5);
                 preparedStatement4.setString(1, resultSet3.getString("status_id"));
                 ResultSet resultSet4 = preparedStatement4.executeQuery();
@@ -92,8 +93,8 @@ public class OrderRepository {
         return orders;
     }
 
-    public Status getOrderStatus(@NotNull Connection connection, @NotNull Long id) throws SQLException {
-        String queryString = "SELECT status_id FROM order_list WHERE order_id = ?";
+    public synchronized Status getOrderStatus(@NotNull Connection connection, @NotNull Long id) throws SQLException {
+        @Language("MySQL") String queryString = "SELECT status_id FROM order_list WHERE order_id = ?";
         PreparedStatement preparedStatement = connection.prepareStatement(queryString);
         preparedStatement.setString(1, String.valueOf(id));
         ResultSet resultSet = preparedStatement.executeQuery();
@@ -102,8 +103,8 @@ public class OrderRepository {
         return new StatusRepository().getStatusById(connection, statusId);
     }
 
-    public Status updateOrderStatus(@NotNull Connection connection, @NotNull Long id, @NotNull Status nextStatus) throws SQLException {
-        String queryString = "UPDATE order_list SET status_id = ? WHERE order_id = ?";
+    public synchronized Status updateOrderStatus(@NotNull Connection connection, @NotNull Long id, @NotNull Status nextStatus) throws SQLException {
+        @Language("MySQL") String queryString = "UPDATE order_list SET status_id = ? WHERE order_id = ?";
         PreparedStatement preparedStatement = connection.prepareStatement(queryString);
         preparedStatement.setString(1, String.valueOf(nextStatus.getId()));
         preparedStatement.setString(2, String.valueOf(id));
@@ -112,30 +113,30 @@ public class OrderRepository {
         return nextStatus;
     }
 
-    public Order getOrderById(@NotNull Connection connection, @NotNull Long id) throws SQLException {
-        String queryString = "SELECT * FROM order_list WHERE order_id = ?";
+    public synchronized Order getOrderById(@NotNull Connection connection, @NotNull Long id) throws SQLException {
+        @Language("MySQL") String queryString = "SELECT * FROM order_list WHERE order_id = ?";
         PreparedStatement preparedStatement = connection.prepareStatement(queryString);
         preparedStatement.setString(1, String.valueOf(id));
         ResultSet resultSet = preparedStatement.executeQuery();
         resultSet.next();
-        String queryString1 = "SELECT * FROM status WHERE status_id = ?";
+        @Language("MySQL") String queryString1 = "SELECT * FROM status WHERE status_id = ?";
         PreparedStatement preparedStatement1 = connection.prepareStatement(queryString1);
         preparedStatement1.setString(1, resultSet.getString("status_id"));
         ResultSet resultSet1 = preparedStatement1.executeQuery();
         resultSet1.next();
         Status status = new Status(resultSet1.getLong("status_id"), resultSet1.getString("code"), resultSet1.getString("name"), Integer.parseInt(resultSet1.getString("closed")) == 1);
-        String queryString2 = "SELECT * FROM instrument_order WHERE order_id = ?";
+        @Language("MySQL") String queryString2 = "SELECT * FROM instrument_order WHERE order_id = ?";
         PreparedStatement preparedStatement2 = connection.prepareStatement(queryString2);
         preparedStatement2.setString(1, resultSet.getString("order_id"));
         ResultSet resultSet2 = preparedStatement2.executeQuery();
         ArrayList<InstrumentOrder> instruments = new ArrayList<>();
         while (resultSet2.next()) {
-            String queryString3 = "SELECT * FROM instrument_list WHERE instrument_id = ?";
+            @Language("MySQL") String queryString3 = "SELECT * FROM instrument_list WHERE instrument_id = ?";
             PreparedStatement preparedStatement3 = connection.prepareStatement(queryString3);
             preparedStatement3.setString(1, resultSet2.getString("instrument_id"));
             ResultSet resultSet3 = preparedStatement3.executeQuery();
             resultSet3.next();
-            String queryString4 = "SELECT * FROM status WHERE status_id = ?";
+            @Language("MySQL") String queryString4 = "SELECT * FROM status WHERE status_id = ?";
             PreparedStatement preparedStatement4 = connection.prepareStatement(queryString4);
             preparedStatement4.setString(1, resultSet3.getString("status_id"));
             ResultSet resultSet4 = preparedStatement4.executeQuery();
@@ -150,8 +151,8 @@ public class OrderRepository {
         return order;
     }
 
-    public Double getTotalSum(@NotNull Connection connection, @NotNull Long id) throws SQLException {
-        String queryString = "SELECT * FROM instrument_order WHERE order_id = ?";
+    public synchronized Double getTotalSum(@NotNull Connection connection, @NotNull Long id) throws SQLException {
+        @Language("MySQL") String queryString = "SELECT * FROM instrument_order WHERE order_id = ?";
         PreparedStatement preparedStatement = connection.prepareStatement(queryString);
         preparedStatement.setString(1, String.valueOf(id));
         ResultSet resultSet = preparedStatement.executeQuery();
@@ -162,8 +163,8 @@ public class OrderRepository {
         return sum;
     }
 
-    public OrderHistory insertOrderHistory(@NotNull Connection connection, @NotNull OrderHistory orderHistory) throws SQLException {
-        String queryString = "INSERT INTO order_history (user_id, total_sum, title, status_id) VALUES (?, ?, ?, ?)";
+    public synchronized OrderHistory insertOrderHistory(@NotNull Connection connection, @NotNull OrderHistory orderHistory) throws SQLException {
+        @Language("MySQL") String queryString = "INSERT INTO order_history (user_id, total_sum, title, status_id) VALUES (?, ?, ?, ?)";
         PreparedStatement preparedStatement = connection.prepareStatement(queryString);
         preparedStatement.setString(1, String.valueOf(orderHistory.getUser().getId()));
         preparedStatement.setString(2, String.valueOf(orderHistory.getTotalSum()));
@@ -174,13 +175,13 @@ public class OrderRepository {
         return orderHistory;
     }
 
-    public Order deleteOrder(@NotNull Connection connection, @NotNull Long id) throws SQLException {
-        String queryString1 = "SELECT * FROM order_list WHERE order_id = ?";
+    public synchronized Order deleteOrder(@NotNull Connection connection, @NotNull Long id) throws SQLException {
+        @Language("MySQL") String queryString1 = "SELECT * FROM order_list WHERE order_id = ?";
         PreparedStatement preparedStatement1 = connection.prepareStatement(queryString1);
         preparedStatement1.setString(1, String.valueOf(id));
         ResultSet resultSet1 = preparedStatement1.executeQuery();
         resultSet1.next();
-        String queryString = "DELETE FROM order_list WHERE order_id = ?";
+        @Language("MySQL") String queryString = "DELETE FROM order_list WHERE order_id = ?";
         PreparedStatement preparedStatement = connection.prepareStatement(queryString);
         preparedStatement.setString(1, String.valueOf(id));
         preparedStatement.executeUpdate();
@@ -188,19 +189,19 @@ public class OrderRepository {
         return new Order(Long.parseLong(resultSet1.getString("order_id")), resultSet1.getTimestamp("date_created"), new UserRepository().findUserById(connection, Long.valueOf(resultSet1.getString("user_id"))).getLogin(), resultSet1.getString("title"), new StatusRepository().getStatusById(connection, Long.parseLong(resultSet1.getString("status_id"))), Integer.parseInt(resultSet1.getString("closed")) == 1);
     }
 
-    public ArrayList<OrderHistory> getUserOrderHistory(@NotNull Connection connection, @NotNull UserDto userDto) throws SQLException {
-        String queryString = "SELECT * FROM user_list WHERE login = ?";
+    public synchronized ArrayList<OrderHistory> getUserOrderHistory(@NotNull Connection connection, @NotNull UserDto userDto) throws SQLException {
+        @Language("MySQL") String queryString = "SELECT * FROM user_list WHERE login = ?";
         PreparedStatement preparedStatement = connection.prepareStatement(queryString);
         preparedStatement.setString(1, userDto.getLogin());
         ResultSet resultSet = preparedStatement.executeQuery();
         resultSet.next();
-        String queryString1 = "SELECT * FROM order_history WHERE user_id = ? order by date_created";
+        @Language("MySQL") String queryString1 = "SELECT * FROM order_history WHERE user_id = ? order by date_created";
         PreparedStatement preparedStatement1 = connection.prepareStatement(queryString1);
         preparedStatement1.setString(1, resultSet.getString("user_id"));
         ResultSet resultSet1 = preparedStatement1.executeQuery();
         ArrayList<OrderHistory> orderHistories = new ArrayList<>();
         while (resultSet1.next()) {
-            String queryString2 = "SELECT * FROM status WHERE status_id = ?";
+            @Language("MySQL") String queryString2 = "SELECT * FROM status WHERE status_id = ?";
             PreparedStatement preparedStatement2 = connection.prepareStatement(queryString2);
             preparedStatement2.setString(1, resultSet1.getString("status_id"));
             ResultSet resultSet2 = preparedStatement2.executeQuery();

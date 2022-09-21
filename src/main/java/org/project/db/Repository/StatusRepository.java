@@ -1,5 +1,6 @@
 package org.project.db.Repository;
 
+import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.NotNull;
 import org.project.db.Model.Status;
 
@@ -10,9 +11,9 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class StatusRepository {
-    public Status getStatusById(@NotNull Connection connection, @NotNull Long id)
+    public synchronized Status getStatusById(@NotNull Connection connection, @NotNull Long id)
             throws SQLException {
-        String queryString = "select * from status where status_id = ?";
+        @Language("MySQL") String queryString = "select * from status where status_id = ?";
         PreparedStatement preparedStatement = connection.prepareStatement(queryString);
         preparedStatement.setString(1, String.valueOf(id));
         ResultSet resultSet = preparedStatement.executeQuery();
@@ -25,9 +26,9 @@ public class StatusRepository {
                 Integer.parseInt(resultSet.getString("closed")) == 1);
     }
 
-    public Status getStatusByName(@NotNull Connection connection, @NotNull String name)
+    public synchronized Status getStatusByName(@NotNull Connection connection, @NotNull String name)
             throws SQLException {
-        String queryString = "select * from status where name = ?";
+        @Language("MySQL") String queryString = "select * from status where name = ?";
         PreparedStatement preparedStatement = connection.prepareStatement(queryString);
         preparedStatement.setString(1, name);
         ResultSet resultSet = preparedStatement.executeQuery();
@@ -40,9 +41,9 @@ public class StatusRepository {
                 Integer.parseInt(resultSet.getString("closed")) == 1);
     }
 
-    public ArrayList<Status> getAllStatuses(@NotNull Connection connection)
+    public synchronized ArrayList<Status> getAllStatuses(@NotNull Connection connection)
             throws SQLException {
-        String queryString = "select * from status";
+        @Language("MySQL") String queryString = "select * from status";
         PreparedStatement preparedStatement = connection.prepareStatement(queryString);
         ResultSet resultSet = preparedStatement.executeQuery();
         ArrayList<Status> statuses = new ArrayList<>();
@@ -54,9 +55,9 @@ public class StatusRepository {
         return statuses;
     }
 
-    public Status updateStatus(@NotNull Connection connection, @NotNull Status status)
+    public synchronized Status updateStatus(@NotNull Connection connection, @NotNull Status status)
             throws SQLException {
-        String queryString = "update status set code = ?, name = ?, closed = ? where status_id = ?";
+        @Language("MySQL") String queryString = "update status set code = ?, name = ?, closed = ? where status_id = ?";
         PreparedStatement preparedStatement = connection.prepareStatement(queryString);
         preparedStatement.setString(1, status.getCode());
         preparedStatement.setString(2, status.getName());
@@ -66,9 +67,9 @@ public class StatusRepository {
         return status;
     }
 
-    public Status findNextStatus(@NotNull Connection connection, @NotNull Status status)
+    public synchronized Status findNextStatus(@NotNull Connection connection, @NotNull Status status)
             throws SQLException {
-        String queryString = "SELECT status.* FROM next_status join `status` ON next_status.next_status_id = status.status_id where next_status.status_id = ?";
+        @Language("MySQL") String queryString = "SELECT status.* FROM next_status join `status` ON next_status.next_status_id = status.status_id where next_status.status_id = ?";
         PreparedStatement preparedStatement = connection.prepareStatement(queryString);
         preparedStatement.setString(1, String.valueOf(status.getId()));
         ResultSet resultSet = preparedStatement.executeQuery();

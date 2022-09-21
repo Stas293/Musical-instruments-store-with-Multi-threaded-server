@@ -1,5 +1,6 @@
 package org.project.db.Repository;
 
+import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.NotNull;
 import org.project.db.Model.Instrument;
 import org.project.db.Model.Status;
@@ -11,18 +12,18 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class InstrumentRepository {
-    public int numberOfInstruments(@NotNull Connection connection)
+    public synchronized int numberOfInstruments(@NotNull Connection connection)
             throws SQLException {
-        String queryString = "SELECT COUNT(*) FROM instrument_list";
+        @Language("MySQL") String queryString = "SELECT COUNT(*) FROM instrument_list";
         PreparedStatement preparedStatement = connection.prepareStatement(queryString);
         ResultSet resultSet = preparedStatement.executeQuery();
         resultSet.next();
         return Integer.parseInt(resultSet.getString(1));
     }
 
-    public ArrayList<Instrument> getAllInstruments(@NotNull Connection connection)
+    public synchronized ArrayList<Instrument> getAllInstruments(@NotNull Connection connection)
             throws SQLException {
-        String queryString = "SELECT * FROM instrument_list";
+        @Language("MySQL") String queryString = "SELECT * FROM instrument_list";
         PreparedStatement preparedStatement = connection.prepareStatement(queryString);
         ResultSet resultSet = preparedStatement.executeQuery();
         ArrayList<Instrument> instruments = new ArrayList<>();
@@ -41,9 +42,9 @@ public class InstrumentRepository {
         return instruments;
     }
 
-    public ArrayList<Instrument> getInstrumentsFromBy(@NotNull Connection connection, int begin, int end)
+    public synchronized ArrayList<Instrument> getInstrumentsFromBy(@NotNull Connection connection, int begin, int end)
             throws SQLException {
-        String queryString = "SELECT * FROM instrument_list limit ? offset ?";
+        @Language("MySQL") String queryString = "SELECT * FROM instrument_list limit ? offset ?";
         PreparedStatement preparedStatement = connection.prepareStatement(queryString);
         preparedStatement.setInt(2, begin);
         preparedStatement.setInt(1, end - begin);
@@ -63,9 +64,9 @@ public class InstrumentRepository {
         return instruments;
     }
 
-    public Instrument getInstrumentByTitle(@NotNull Connection connection, @NotNull String title)
+    public synchronized Instrument getInstrumentByTitle(@NotNull Connection connection, @NotNull String title)
             throws SQLException {
-        String queryString = "SELECT * FROM instrument_list WHERE title = ?";
+        @Language("MySQL") String queryString = "SELECT * FROM instrument_list WHERE title = ?";
         PreparedStatement preparedStatement = connection.prepareStatement(queryString);
         preparedStatement.setString(1, title);
         ResultSet resultSet = preparedStatement.executeQuery();
@@ -83,9 +84,9 @@ public class InstrumentRepository {
                 Double.parseDouble(resultSet.getString("price")));
     }
 
-    public Instrument insertInstrument(@NotNull Connection connection, @NotNull Instrument instrument) throws SQLException {
+    public synchronized Instrument insertInstrument(@NotNull Connection connection, @NotNull Instrument instrument) throws SQLException {
         try {
-            String queryString = "INSERT INTO instrument_list (description, title, status_id, price) " +
+            @Language("MySQL") String queryString = "INSERT INTO instrument_list (description, title, status_id, price) " +
                     "VALUES (?, ?, ?, ?)";
             PreparedStatement preparedStatement = connection.prepareStatement(queryString);
             preparedStatement.setString(1, instrument.getDescription());
@@ -101,9 +102,9 @@ public class InstrumentRepository {
         return getInstrumentByTitle(connection, instrument.getTitle());
     }
 
-    public Instrument changeStatusOfInstrument(@NotNull Connection connection, @NotNull Instrument instrument, @NotNull Status status)
+    public synchronized Instrument changeStatusOfInstrument(@NotNull Connection connection, @NotNull Instrument instrument, @NotNull Status status)
             throws SQLException {
-        String queryString = "UPDATE instrument_list SET status_id = ? WHERE instrument_id = ?";
+        @Language("MySQL") String queryString = "UPDATE instrument_list SET status_id = ? WHERE instrument_id = ?";
         PreparedStatement preparedStatement = connection.prepareStatement(queryString);
         preparedStatement.setLong(1, status.getId());
         preparedStatement.setLong(2, instrument.getId());
