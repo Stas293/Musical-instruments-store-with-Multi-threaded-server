@@ -1,5 +1,8 @@
 package org.project.db.model;
 
+import org.project.db.model.builder.InstrumentBuilderImpl;
+import org.project.db.model.builder_interface.InstrumentBuilder;
+
 import java.util.Date;
 
 public class Instrument implements java.io.Serializable {
@@ -19,6 +22,10 @@ public class Instrument implements java.io.Serializable {
         this.title = title;
         this.status = status;
         this.price = price;
+    }
+
+    public static InstrumentBuilder builder() {
+        return new InstrumentBuilderImpl();
     }
 
     public Long getId() {

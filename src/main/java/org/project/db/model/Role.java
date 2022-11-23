@@ -1,5 +1,8 @@
 package org.project.db.model;
 
+import org.project.db.model.builder.RoleBuilderImpl;
+import org.project.db.model.builder_interface.RoleBuilder;
+
 import java.util.Objects;
 
 public class Role implements java.io.Serializable {
@@ -11,6 +14,10 @@ public class Role implements java.io.Serializable {
         this.id = id;
         this.code = code;
         this.name = name;
+    }
+
+    public static RoleBuilder builder() {
+        return new RoleBuilderImpl();
     }
 
     public Long getId() {

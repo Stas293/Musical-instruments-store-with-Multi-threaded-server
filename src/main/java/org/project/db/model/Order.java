@@ -1,5 +1,8 @@
 package org.project.db.model;
 
+import org.project.db.model.builder.OrderBuilderImpl;
+import org.project.db.model.builder_interface.OrderBuilder;
+
 import java.util.Date;
 import java.util.List;
 
@@ -21,6 +24,10 @@ public class Order implements java.io.Serializable {
         this.status = status;
         this.closed = closed;
         this.instruments = instruments;
+    }
+
+    public static OrderBuilder builder() {
+        return new OrderBuilderImpl();
     }
 
     public Long getId() {

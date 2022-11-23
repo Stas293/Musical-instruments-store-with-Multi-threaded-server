@@ -1,5 +1,8 @@
 package org.project.db.model;
 
+import org.project.db.model.builder.OrderHistoryBuilderImpl;
+import org.project.db.model.builder_interface.OrderHistoryBuilder;
+
 import java.util.Date;
 
 public class OrderHistory implements java.io.Serializable {
@@ -17,6 +20,10 @@ public class OrderHistory implements java.io.Serializable {
         this.totalSum = totalSum;
         this.title = title;
         this.status = status;
+    }
+
+    public static OrderHistoryBuilder builder() {
+        return new OrderHistoryBuilderImpl();
     }
 
     public Long getId() {

@@ -1,16 +1,22 @@
 package org.project.db.dao;
 
+import org.intellij.lang.annotations.Language;
+import org.jetbrains.annotations.NotNull;
 import org.project.db.model.Status;
+import org.project.db.model.builder.StatusBuilderImpl;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 public interface StatusDao extends GenericDao<Status> {
-    Optional<Status> findByCode(String code);
+    Optional<Status> getStatusByName(String name) throws SQLException;
 
-    Optional<Status> findByRequestId(Long requestId);
+    List<Status> getAllStatuses() throws SQLException;
 
-    Optional<Status> findByHistoryRequestId(Long historyRequestId);
-
-    Optional<List<Status>> findNextStatusesForCurrentStatusById(Long id);
+    Status findNextStatus(Status status) throws SQLException;
 }

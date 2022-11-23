@@ -34,7 +34,7 @@ public class User implements java.io.Serializable {
         this.roles = roles;
     }
 
-    public UserBuilder getBuilder() {
+    public static UserBuilder builder() {
         return new UserBuilderImpl();
     }
 

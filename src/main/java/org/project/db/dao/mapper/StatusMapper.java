@@ -9,11 +9,10 @@ import java.sql.SQLException;
 public class StatusMapper implements ObjectMapper<Status> {
     @Override
     public Status extractFromResultSet(ResultSet rs) throws SQLException {
-        return new StatusBuilderImpl()
+        return Status.builder()
                 .setId(rs.getLong("id"))
                 .setCode(rs.getString("code"))
                 .setName(rs.getString("name"))
                 .createStatus();
     }
-}
 }

@@ -11,7 +11,7 @@ import java.sql.SQLException;
 public class InstrumentMapper implements ObjectMapper<Instrument> {
     @Override
     public Instrument extractFromResultSet(ResultSet rs) throws SQLException {
-        return new InstrumentBuilderImpl()
+        return Instrument.builder()
                 .setId(rs.getLong("id"))
                 .setDateCreated(rs.getTimestamp("date_created"))
                 .setDateUpdated(rs.getTimestamp("date_modified"))
@@ -21,5 +21,4 @@ public class InstrumentMapper implements ObjectMapper<Instrument> {
                 .setPrice(rs.getDouble("price"))
                 .createInstrument();
     }
-}
 }

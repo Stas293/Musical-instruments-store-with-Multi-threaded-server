@@ -1,5 +1,8 @@
 package org.project.db.model;
 
+import org.project.db.model.builder.StatusBuilderImpl;
+import org.project.db.model.builder_interface.StatusBuilder;
+
 public class Status implements java.io.Serializable {
     private final Long id;
     private String code;
@@ -11,6 +14,10 @@ public class Status implements java.io.Serializable {
         this.code = code;
         this.name = name;
         this.closed = closed;
+    }
+
+    public static StatusBuilder builder() {
+        return new StatusBuilderImpl();
     }
 
     public Long getId() {

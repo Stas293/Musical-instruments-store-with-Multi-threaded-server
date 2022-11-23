@@ -25,8 +25,8 @@ public class DatabaseClient extends JFrame {
     private JButton openButton;
     private JButton closeButton;
     transient SocketChannel socket = null;
-    transient ObjectOutputStream toServer;
-    transient ObjectInputStream fromServer;
+    private transient ObjectOutputStream toServer;
+    private transient ObjectInputStream fromServer;
     private User user = null;
     JTextField tfLogin;
     JTextField tfEmail;
@@ -198,7 +198,7 @@ public class DatabaseClient extends JFrame {
         getNumberOfInstruments.addActionListener(new GetNumberOfInstrumentsListener(this));
         JButton addInstrument = new JButton("Add instrument");
         choicePanel.add(addInstrument);
-        addInstrument.addActionListener(new AddInstrumentListener(this));
+        addInstrument.addActionListener(new AddInstrumentListener(this, fromServer, toServer));
     }
 
     private void addUserGUI(JPanel choicePanel) {

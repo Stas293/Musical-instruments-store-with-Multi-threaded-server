@@ -1,23 +1,25 @@
 package org.project.db.client;
 
-import org.project.db.model.builder.InstrumentBuilderImpl;
-import org.project.db.model.Status;
+import org.project.db.client.service.MakeInstrumentAndStatus;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Objects;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.logging.Logger;
 
-class AddInstrumentListener implements ActionListener {
+public class AddInstrumentListener implements ActionListener {
     private final DatabaseClient databaseClient;
+    private final ObjectInputStream fromServer;
+    private final ObjectOutputStream toServer;
     private static final Logger logger = Logger.getLogger(AddInstrumentListener.class.getName());
 
-    public AddInstrumentListener(DatabaseClient databaseClient) {
+    public AddInstrumentListener(DatabaseClient databaseClient, ObjectInputStream fromServer, ObjectOutputStream toServer) {
         this.databaseClient = databaseClient;
+        this.fromServer = fromServer;
+        this.toServer = toServer;
     }
 
     @Override
@@ -51,7 +53,7 @@ class AddInstrumentListener implements ActionListener {
         infoPanel.add(tfPrice);
         mainPanel.add(infoPanel, BorderLayout.CENTER);
         JButton btAdd = new JButton("Add");
-        new MakeInstrumentAndStatus(tfTitle, tfDescription, cbStatus, tfPrice, btAdd).invoke();
+        new MakeInstrumentAndStatus(databaseClient, toServer, fromServer, tfTitle, tfDescription, cbStatus, tfPrice, btAdd).invoke();
         JButton btBack = new JButton(Constants.BACK);
         btBack.addActionListener(event -> databaseClient.loggedInUser());
         JPanel btPanel = new JPanel();
@@ -63,42 +65,4 @@ class AddInstrumentListener implements ActionListener {
         databaseClient.repaint();
     }
 
-    private class MakeInstrumentAndStatus {
-        private final JTextField tfTitle;
-        private final JTextField tfDescription;
-        private final JComboBox<String> cbStatus;
-        private final JTextField tfPrice;
-        private final JButton btAdd;
-
-        public MakeInstrumentAndStatus(JTextField tfTitle, JTextField tfDescription, JComboBox<String> cbStatus, JTextField tfPrice, JButton btAdd) {
-            this.tfTitle = tfTitle;
-            this.tfDescription = tfDescription;
-            this.cbStatus = cbStatus;
-            this.tfPrice = tfPrice;
-            this.btAdd = btAdd;
-        }
-
-        public void invoke() {
-            btAdd.addActionListener((event) -> {
-                try {
-                    if (tfDescription.getText().trim().isEmpty() || tfTitle.getText().trim().isEmpty() || Double.parseDouble(tfPrice.getText().trim()) < 0) {
-                        return;
-                    }
-                    databaseClient.toServer.writeObject("getStatuses");
-                    ArrayList<Status> statuses = (ArrayList<Status>) databaseClient.fromServer.readObject();
-                    String statusName = Objects.requireNonNull(cbStatus.getSelectedItem()).toString();
-                    Status status = statuses.stream().filter(s -> s.getName().equals(statusName)).findFirst().orElse(null);
-                    databaseClient.toServer.writeObject("addInstrument");
-                    databaseClient.toServer.writeObject(new InstrumentBuilderImpl().setDescription(tfDescription.getText().trim()).setTitle(tfTitle.getText().trim()).setStatus(status).setPrice(Double.parseDouble(tfPrice.getText().trim())).createInstrument());
-                    Object object = databaseClient.fromServer.readObject();
-                    System.out.println(object);
-                    databaseClient.loggedInUser();
-                } catch (IOException | ClassNotFoundException e1) {
-                    logger.warning(e1.getMessage());
-                } catch (NumberFormatException ex) {
-                    System.out.println("Price must be a number");
-                }
-            });
-        }
-    }
 }

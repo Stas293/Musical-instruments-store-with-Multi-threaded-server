@@ -129,11 +129,6 @@ public class RoleDaoImpl implements RoleDao {
     }
 
     @Override
-    public Optional<List<Role>> getRolesForUser(Long accountId) {
-        return Optional.empty();
-    }
-
-    @Override
     public Optional<List<Role>> findAll() {
         return Optional.empty();
     }

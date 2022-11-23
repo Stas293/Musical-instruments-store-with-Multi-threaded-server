@@ -29,7 +29,7 @@ public class UserDaoImpl implements UserDao {
         this.connection = connection;
     }
 
-    public synchronized Optional<User> enableUser(UserDto userDto) throws SQLException {
+    public Optional<User> enableUser(UserDto userDto) throws SQLException {
         @Language("MySQL") String queryString = "UPDATE user_list SET enabled = 1 WHERE login = ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             preparedStatement.setString(1, userDto.getLogin());
@@ -45,7 +45,7 @@ public class UserDaoImpl implements UserDao {
         return Optional.empty();
     }
 
-    public synchronized List<UserDto> getAllUsers() throws SQLException {
+    public List<UserDto> getAllUsers() throws SQLException {
         @Language("MySQL") String queryString = "SELECT login FROM user_list";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -203,60 +203,98 @@ public class UserDaoImpl implements UserDao {
         return findByLogin(userDto.getLogin());
     }
 
-    public synchronized User changeEmail(@NotNull UserDto userDto, String email)
+    public Optional<User> changeEmail(@NotNull UserDto userDto, String email)
             throws SQLException {
         @Language("MySQL") String queryString = "UPDATE user_list SET email = ? WHERE login = ?";
-        PreparedStatement preparedStatement = connection.prepareStatement(queryString);
-        preparedStatement.setString(1, email);
-        preparedStatement.setString(2, userDto.getLogin());
-        preparedStatement.executeUpdate();
-        connection.commit();
-        return findUserByLogin(connection, userDto);
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString);){
+            preparedStatement.setString(1, email);
+            preparedStatement.setString(2, userDto.getLogin());
+            connection.setAutoCommit(false);
+            preparedStatement.executeUpdate();
+            connection.commit();
+        } catch (SQLException e) {
+            connection.rollback();
+            logger.log(Level.SEVERE, "Error while changing email", e);
+        } finally {
+            connection.setAutoCommit(true);
+            close();
+        }
+        return findByLogin(userDto.getLogin());
     }
 
-    public synchronized User changeFirstName(@NotNull UserDto userDto, String firstName)
+    public Optional<User> changeFirstName(@NotNull UserDto userDto, String firstName)
             throws SQLException {
         @Language("MySQL") String queryString = "UPDATE user_list SET first_name = ? WHERE login = ?";
-        PreparedStatement preparedStatement = connection.prepareStatement(queryString);
-        preparedStatement.setString(1, firstName);
-        preparedStatement.setString(2, userDto.getLogin());
-        preparedStatement.executeUpdate();
-        connection.commit();
-        return findUserByLogin(connection, userDto);
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString);){
+            preparedStatement.setString(1, firstName);
+            preparedStatement.setString(2, userDto.getLogin());
+            connection.setAutoCommit(false);
+            preparedStatement.executeUpdate();
+            connection.commit();
+        } catch (SQLException e) {
+            connection.rollback();
+            logger.log(Level.SEVERE, "Error while changing first name", e);
+        } finally {
+            connection.setAutoCommit(true);
+            close();
+        }
+        return findByLogin(userDto.getLogin());
     }
 
-    public synchronized User changeLastName(@NotNull UserDto userDto, String lastName)
+    public Optional<User> changeLastName(@NotNull UserDto userDto, String lastName)
             throws SQLException {
         @Language("MySQL") String queryString = "UPDATE user_list SET last_name = ? WHERE login = ?";
-        PreparedStatement preparedStatement = connection.prepareStatement(queryString);
-        preparedStatement.setString(1, lastName);
-        preparedStatement.setString(2, userDto.getLogin());
-        preparedStatement.executeUpdate();
-        connection.commit();
-        return findUserByLogin(connection, userDto);
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString);){
+            preparedStatement.setString(1, lastName);
+            preparedStatement.setString(2, userDto.getLogin());
+            connection.setAutoCommit(false);
+            preparedStatement.executeUpdate();
+            connection.commit();
+        } catch (SQLException e) {
+            connection.rollback();
+            logger.log(Level.SEVERE, "Error while changing last name", e);
+        } finally {
+            connection.setAutoCommit(true);
+            close();
+        }
+        return findByLogin(userDto.getLogin());
     }
 
-    public synchronized User changePhone(@NotNull UserDto userDto, String phone)
+    public Optional<User> changePhone(@NotNull UserDto userDto, String phone)
             throws SQLException {
         @Language("MySQL") String queryString = "UPDATE user_list SET phone = ? WHERE login = ?";
-        PreparedStatement preparedStatement = connection.prepareStatement(queryString);
-        preparedStatement.setString(1, phone);
-        preparedStatement.setString(2, userDto.getLogin());
-        preparedStatement.executeUpdate();
-        connection.commit();
-        return findUserByLogin(connection, userDto);
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString);){
+            preparedStatement.setString(1, phone);
+            preparedStatement.setString(2, userDto.getLogin());
+            connection.setAutoCommit(false);
+            preparedStatement.executeUpdate();
+            connection.commit();
+        } catch (SQLException e) {
+            connection.rollback();
+            logger.log(Level.SEVERE, "Error while changing phone", e);
+        } finally {
+            connection.setAutoCommit(true);
+            close();
+        }
+        return findByLogin(userDto.getLogin());
     }
 
-    public synchronized User changePassword(@NotNull UserDto userDto, String password)
+    public Optional<User> changePassword(@NotNull UserDto userDto, String password)
             throws SQLException {
         @Language("MySQL") String queryString = "UPDATE user_list SET password = ? WHERE login = ?";
-        PreparedStatement preparedStatement = connection.prepareStatement(queryString);
-        preparedStatement.setString(1, password);
-        preparedStatement.setString(2, userDto.getLogin());
-        preparedStatement.executeUpdate();
-        connection.commit();
-        return findUserByLogin(connection, userDto);
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString);){
+            preparedStatement.setString(1, password);
+            preparedStatement.setString(2, userDto.getLogin());
+            connection.setAutoCommit(false);
+            preparedStatement.executeUpdate();
+            connection.commit();
+        } catch (SQLException e) {
+            connection.rollback();
+            logger.log(Level.SEVERE, "Error while changing password", e);
+        } finally {
+            connection.setAutoCommit(true);
+            close();
+        }
+        return findByLogin(userDto.getLogin());
     }
-
-
 }

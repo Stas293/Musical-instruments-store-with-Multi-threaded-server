@@ -32,7 +32,7 @@ class AddRoleForUserListener implements ActionListener {
             for (UserDto userDto : users) {
                 JButton btAddRole = new JButton("Add role for " + userDto.getLogin());
                 infoPanel.add(btAddRole);
-                btAddRole.addActionListener(new AddRoleButtonListner(databaseClient, btAddRole.getText().split(" ")[3]));
+                btAddRole.addActionListener(new AddRoleButtonListner(databaseClient, toServer, fromServer, btAddRole.getText().split(" ")[3]));
             }
             EnableUserListener.addScroller(users, mainPanel, infoPanel, databaseClient);
         } catch (IOException | ClassNotFoundException ex) {

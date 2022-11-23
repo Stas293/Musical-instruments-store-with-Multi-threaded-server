@@ -19,13 +19,13 @@ public interface UserDao extends GenericDao<User> {
 
     List<UserDto> getAllUsers() throws SQLException;
 
-    Optional<User> changeEmail(UserDto userDto) throws SQLException;
+    Optional<User> changeEmail(UserDto userDto, String email) throws SQLException;
 
-    Optional<User> changePassword(UserDto userDto) throws SQLException;
+    Optional<User> changePassword(UserDto userDto, String password) throws SQLException;
 
-    Optional<User> changeFirstName(UserDto userDto) throws SQLException;
+    Optional<User> changeFirstName(UserDto userDto, String firstName) throws SQLException;
 
-    Optional<User> changeLastName(UserDto userDto) throws SQLException;
+    Optional<User> changeLastName(UserDto userDto, String lastName) throws SQLException;
 
-    Optional<User> changePhone(UserDto userDto) throws SQLException;
+    Optional<User> changePhone(UserDto userDto, String phone) throws SQLException;
 }

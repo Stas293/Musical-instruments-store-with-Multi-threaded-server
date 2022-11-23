@@ -14,6 +14,12 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class OrderDaoImpl {
+    private final Connection connection;
+
+    public OrderDaoImpl(Connection connection) {
+        this.connection = connection;
+    }
+
     public synchronized Order insertOrder(@NotNull Connection connection, @NotNull OrderDto orderDto) throws SQLException {
         String queryString = "SELECT user_id FROM user_list WHERE login = ?";
         PreparedStatement preparedStatement = connection.prepareStatement(queryString);

@@ -1,5 +1,7 @@
 package org.project.db.multi_threaded_server;
 
+import org.project.db.dao.UserDao;
+import org.project.db.dao.impl.JDBCDaoFactory;
 import org.project.db.dao.impl.UserDaoImpl;
 import org.project.db.dto.RegistrationDto;
 import org.project.db.dto.UserDto;
@@ -8,6 +10,7 @@ import org.project.db.model.User;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.sql.SQLException;
 
 public class RegisterAction implements Command {
     private final ObjectInputStream inputObjectFromClient;
@@ -20,13 +23,14 @@ public class RegisterAction implements Command {
     @Override
     public void execute() throws IOException, ClassNotFoundException {
         RegistrationDto s = (RegistrationDto) inputObjectFromClient.readObject();
-        User user = new UserDaoImpl().findUserByLogin(multiThreadServer.connection, new UserDto(s.getLogin()));
-        if (user == null) {
-            new UserDaoImpl().create(multiThreadServer.connection, s);
-            multiThreadServer.connection.commit();
-            outputObjectToClient.writeObject(new UserDaoImpl().findUserByLogin(multiThreadServer.connection, new UserDto(s.getLogin())));
-        } else {
-            outputObjectToClient.writeObject("User already exists");
+        try (UserDao user = JDBCDaoFactory.getInstance().createUserDao()) {
+            if (user.create(s).isPresent()) {
+                outputObjectToClient.writeObject("Registration successful");
+            } else {
+                outputObjectToClient.writeObject("Registration failed");
+            }
+        } catch (SQLException e) {
+            outputObjectToClient.writeObject("Registration failed");
         }
     }
 }

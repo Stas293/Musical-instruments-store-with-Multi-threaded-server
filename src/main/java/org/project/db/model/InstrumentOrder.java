@@ -1,5 +1,8 @@
 package org.project.db.model;
 
+import org.project.db.model.builder.InstrumentOrderBuilderImpl;
+import org.project.db.model.builder_interface.InstrumentOrderBuilder;
+
 public class InstrumentOrder implements java.io.Serializable {
     private Instrument instrument;
     private double price;
@@ -9,6 +12,10 @@ public class InstrumentOrder implements java.io.Serializable {
         this.instrument = instrument;
         this.price = price;
         this.quantity = quantity;
+    }
+
+    public static InstrumentOrderBuilder builder() {
+        return new InstrumentOrderBuilderImpl();
     }
 
     public Instrument getInstrument() {

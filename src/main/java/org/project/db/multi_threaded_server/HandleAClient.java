@@ -41,9 +41,6 @@ class HandleAClient implements Runnable {
                     Command commandObject = ActionFactory.getCommand(commandAction, inputObjectFromClient, outputObjectToClient);
                     commandObject.execute();
                     switch (command) {
-                        case "login":
-
-                            break;
                         case "allUserDtos":
                             outputObjectToClient.writeObject(new UserDaoImpl().getAllUsers(multiThreadServer.connection));
                             break;
