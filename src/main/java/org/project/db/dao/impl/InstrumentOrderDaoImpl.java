@@ -1,4 +1,4 @@
-package org.project.db.dao;
+package org.project.db.dao.impl;
 
 import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.Contract;
@@ -10,7 +10,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-public class InstrumentOrderRepository {
+public class InstrumentOrderDaoImpl {
     private static final Object mutex = new Object();
     @Contract("_, _, _ -> param2")
     public static @NotNull InstrumentOrder insertInstrumentOrder(@NotNull Connection connection, @NotNull InstrumentOrder instrumentOrder, @NotNull Order order) throws SQLException {

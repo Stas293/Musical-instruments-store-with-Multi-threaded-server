@@ -1,7 +1,8 @@
-package org.project.db.dao;
+package org.project.db.dao.impl;
 
 import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.NotNull;
+import org.project.db.dao.RoleDao;
 import org.project.db.dto.UserDto;
 import org.project.db.model.Role;
 import org.project.db.model.builder.RoleBuilderImpl;
@@ -11,18 +12,16 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.logging.Logger;
 
-public class RoleRepository {
-    public synchronized Role getRoleById(@NotNull Connection connection, Long id) throws SQLException {
-        @Language("MySQL") String queryString = "SELECT * FROM role WHERE role_id = ?";
-        PreparedStatement preparedStatement = connection.prepareStatement(queryString);
-        preparedStatement.setString(1, String.valueOf(id));
-        ResultSet resultSet = preparedStatement.executeQuery();
-        boolean exist = resultSet.next();
-        if (!exist) {
-            return null;
-        }
-        return new RoleBuilderImpl().setId(Long.parseLong(resultSet.getString("role_id"))).setCode(resultSet.getString("code")).setName(resultSet.getString("name")).createRole();
+public class RoleDaoImpl implements RoleDao {
+    private Connection connection;
+    private static final Logger LOGGER = Logger.getLogger(RoleDaoImpl.class.getName());
+
+    public RoleDaoImpl(Connection connection) {
+        this.connection = connection;
     }
 
     public synchronized Role getRoleByName(@NotNull Connection connection, String name) throws SQLException {
@@ -37,7 +36,7 @@ public class RoleRepository {
         return new RoleBuilderImpl().setId(Long.parseLong(resultSet.getString("role_id"))).setCode(resultSet.getString("code")).setName(resultSet.getString("name")).createRole();
     }
 
-    public synchronized ArrayList<Role> insertRoleForUser(@NotNull Connection connection, @NotNull UserDto userDto, String roleName)
+    public synchronized List<Role> insertRoleForUser(@NotNull Connection connection, @NotNull UserDto userDto, String roleName)
             throws SQLException {
         @Language("MySQL") String queryString = "SELECT user_id FROM user_list WHERE login = ?";
         PreparedStatement preparedStatement = connection.prepareStatement(queryString);
@@ -76,5 +75,66 @@ public class RoleRepository {
             roles.add(new RoleBuilderImpl().setId(Long.parseLong(resultSet.getString("role_id"))).setCode(resultSet.getString("code")).setName(resultSet.getString("name")).createRole());
         }
         return roles;
+    }
+
+    @Override
+    public Role create(Role entity) throws SQLException {
+        return null;
+    }
+
+    @Override
+    public Optional<Role> findById(Long id) {
+        @Language("MySQL") String queryString = "SELECT * FROM role WHERE role_id = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            preparedStatement.setString(1, String.valueOf(id));
+            ResultSet resultSet = preparedStatement.executeQuery();
+            boolean exist = resultSet.next();
+            if (!exist) {
+                return null;
+            }
+            return new RoleBuilderImpl().setId(Long.parseLong(resultSet.getString("role_id"))).setCode(resultSet.getString("code")).setName(resultSet.getString("name")).createRole();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void update(Role entity) throws SQLException {
+
+    }
+
+    @Override
+    public void delete(Long id) throws SQLException {
+
+    }
+
+    @Override
+    public void close() {
+
+    }
+
+    @Override
+    public Optional<Role> findByCode(String code) {
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<List<Role>> getRolesForUser(UserDto userDto) {
+        return Optional.empty();
+    }
+
+    @Override
+    public List<Role> insertRoleForUser(UserDto userDto, String roleName) {
+        return null;
+    }
+
+    @Override
+    public Optional<List<Role>> getRolesForUser(Long accountId) {
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<List<Role>> findAll() {
+        return Optional.empty();
     }
 }

@@ -1,4 +1,4 @@
-package org.project.db.dao;
+package org.project.db.dao.impl;
 
 import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.NotNull;
@@ -13,7 +13,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-public class OrderRepository {
+public class OrderDaoImpl {
     public synchronized Order insertOrder(@NotNull Connection connection, @NotNull OrderDto orderDto) throws SQLException {
         String queryString = "SELECT user_id FROM user_list WHERE login = ?";
         PreparedStatement preparedStatement = connection.prepareStatement(queryString);
@@ -39,7 +39,7 @@ public class OrderRepository {
         resultSet = preparedStatement.executeQuery();
         resultSet.next();
         connection.commit();
-        return new OrderBuilderImpl().setId(Long.parseLong(resultSet.getString("order_id"))).setDateCreated(resultSet.getTimestamp("date_created")).setLogin(new UserRepository().findUserById(connection, Long.valueOf(resultSet.getString("user_id"))).getLogin()).setTitle(resultSet.getString("title")).setStatus(new StatusRepository().getStatusById(connection, statusId)).setClosed(Integer.parseInt(resultSet.getString("closed")) == 1).createOrder();
+        return new OrderBuilderImpl().setId(Long.parseLong(resultSet.getString("order_id"))).setDateCreated(resultSet.getTimestamp("date_created")).setLogin(new UserDaoImpl().findUserById(connection, Long.valueOf(resultSet.getString("user_id"))).getLogin()).setTitle(resultSet.getString("title")).setStatus(new StatusDaoImpl().getStatusById(connection, statusId)).setClosed(Integer.parseInt(resultSet.getString("closed")) == 1).createOrder();
     }
 
     public synchronized ArrayList<Order> getAllOrders(@NotNull Connection connection, @NotNull UserDto userDto) throws SQLException {
@@ -83,7 +83,7 @@ public class OrderRepository {
                 Status status1 = new StatusBuilderImpl().setId(resultSet4.getLong("status_id")).setCode(resultSet4.getString("code")).setName(resultSet4.getString("name")).setClosed(Integer.parseInt(resultSet4.getString("closed")) == 1).createStatus();
                 instruments.add(new InstrumentOrderBuilderImpl().setInstrument(new InstrumentBuilderImpl().setId(resultSet3.getLong("instrument_id")).setDateCreated(resultSet3.getTimestamp("date_created")).setDateUpdated(resultSet3.getTimestamp("date_updated")).setDescription(resultSet3.getString("description")).setTitle(resultSet3.getString("title")).setStatus(status1).setPrice(Double.parseDouble(resultSet3.getString("price"))).createInstrument()).setPrice(resultSet2.getDouble("price")).setQuantity(resultSet2.getInt("quantity")).createInstrumentOrder());
             }
-            Order order = new OrderBuilderImpl().setId(Long.parseLong(resultSet.getString("order_id"))).setDateCreated(resultSet.getTimestamp("date_created")).setLogin(new UserRepository().findUserById(connection, Long.valueOf(resultSet.getString("user_id"))).getLogin()).setTitle(resultSet.getString("title")).setStatus(status).setClosed(Integer.parseInt(resultSet.getString("closed")) == 1).createOrder();
+            Order order = new OrderBuilderImpl().setId(Long.parseLong(resultSet.getString("order_id"))).setDateCreated(resultSet.getTimestamp("date_created")).setLogin(new UserDaoImpl().findUserById(connection, Long.valueOf(resultSet.getString("user_id"))).getLogin()).setTitle(resultSet.getString("title")).setStatus(status).setClosed(Integer.parseInt(resultSet.getString("closed")) == 1).createOrder();
             order.setInstruments(instruments);
             orders.add(order);
         }
@@ -97,7 +97,7 @@ public class OrderRepository {
         ResultSet resultSet = preparedStatement.executeQuery();
         resultSet.next();
         Long statusId = resultSet.getLong("status_id");
-        return new StatusRepository().getStatusById(connection, statusId);
+        return new StatusDaoImpl().getStatusById(connection, statusId);
     }
 
     public synchronized Status updateOrderStatus(@NotNull Connection connection, @NotNull Long id, @NotNull Status nextStatus) throws SQLException {
@@ -141,7 +141,7 @@ public class OrderRepository {
             Status status1 = new StatusBuilderImpl().setId(resultSet4.getLong("status_id")).setCode(resultSet4.getString("code")).setName(resultSet4.getString("name")).setClosed(Integer.parseInt(resultSet4.getString("closed")) == 1).createStatus();
             instruments.add(new InstrumentOrderBuilderImpl().setInstrument(new InstrumentBuilderImpl().setId(resultSet3.getLong("instrument_id")).setDateCreated(resultSet3.getTimestamp("date_created")).setDateUpdated(resultSet3.getTimestamp("date_updated")).setDescription(resultSet3.getString("description")).setTitle(resultSet3.getString("title")).setStatus(status1).setPrice(Double.parseDouble(resultSet3.getString("price"))).createInstrument()).setPrice(resultSet2.getDouble("price")).setQuantity(resultSet2.getInt("quantity")).createInstrumentOrder());
         }
-        Order order = new OrderBuilderImpl().setId(Long.parseLong(resultSet.getString("order_id"))).setDateCreated(resultSet.getTimestamp("date_created")).setLogin(new UserRepository().findUserById(connection, Long.valueOf(resultSet.getString("user_id"))).getLogin()).setTitle(resultSet.getString("title")).setStatus(status).setClosed(Integer.parseInt(resultSet.getString("closed")) == 1).createOrder();
+        Order order = new OrderBuilderImpl().setId(Long.parseLong(resultSet.getString("order_id"))).setDateCreated(resultSet.getTimestamp("date_created")).setLogin(new UserDaoImpl().findUserById(connection, Long.valueOf(resultSet.getString("user_id"))).getLogin()).setTitle(resultSet.getString("title")).setStatus(status).setClosed(Integer.parseInt(resultSet.getString("closed")) == 1).createOrder();
         order.setInstruments(instruments);
         return order;
     }
@@ -181,7 +181,7 @@ public class OrderRepository {
         preparedStatement.setString(1, String.valueOf(id));
         preparedStatement.executeUpdate();
         connection.commit();
-        return new OrderBuilderImpl().setId(Long.parseLong(resultSet1.getString("order_id"))).setDateCreated(resultSet1.getTimestamp("date_created")).setLogin(new UserRepository().findUserById(connection, Long.valueOf(resultSet1.getString("user_id"))).getLogin()).setTitle(resultSet1.getString("title")).setStatus(new StatusRepository().getStatusById(connection, Long.parseLong(resultSet1.getString("status_id")))).setClosed(Integer.parseInt(resultSet1.getString("closed")) == 1).createOrder();
+        return new OrderBuilderImpl().setId(Long.parseLong(resultSet1.getString("order_id"))).setDateCreated(resultSet1.getTimestamp("date_created")).setLogin(new UserDaoImpl().findUserById(connection, Long.valueOf(resultSet1.getString("user_id"))).getLogin()).setTitle(resultSet1.getString("title")).setStatus(new StatusDaoImpl().getStatusById(connection, Long.parseLong(resultSet1.getString("status_id")))).setClosed(Integer.parseInt(resultSet1.getString("closed")) == 1).createOrder();
     }
 
     public synchronized ArrayList<OrderHistory> getUserOrderHistory(@NotNull Connection connection, @NotNull UserDto userDto) throws SQLException {
@@ -202,7 +202,7 @@ public class OrderRepository {
             ResultSet resultSet2 = preparedStatement2.executeQuery();
             resultSet2.next();
             Status status = new StatusBuilderImpl().setId(resultSet2.getLong("status_id")).setCode(resultSet2.getString("code")).setName(resultSet2.getString("name")).setClosed(Integer.parseInt(resultSet2.getString("closed")) == 1).createStatus();
-            orderHistories.add(new OrderHistoryBuilderImpl().setId(Long.parseLong(resultSet1.getString("history_id"))).setDateCreated(resultSet1.getTimestamp("date_created")).setUser(new UserBuilderImpl().setId(Long.parseLong(resultSet1.getString("user_id"))).setLogin(resultSet.getString("login")).setFirstName(resultSet.getString("first_name")).setLastName(resultSet.getString("last_name")).setEmail(resultSet.getString("email")).setPhone(resultSet.getString("phone")).setPassword(resultSet.getString("password")).setEnabled(Integer.parseInt(resultSet.getString("enabled")) == 1).setDateCreated(resultSet.getTimestamp("date_created")).setDateUpdated(resultSet.getTimestamp("date_modified")).setRoles(new RoleRepository().getRolesForUser(connection, new UserDto(resultSet.getString("login")))).createUser()).setTotalSum(resultSet1.getDouble("total_sum")).setTitle(resultSet1.getString("title")).setStatus(status).createOrderHistory());
+            orderHistories.add(new OrderHistoryBuilderImpl().setId(Long.parseLong(resultSet1.getString("history_id"))).setDateCreated(resultSet1.getTimestamp("date_created")).setUser(new UserBuilderImpl().setId(Long.parseLong(resultSet1.getString("user_id"))).setLogin(resultSet.getString("login")).setFirstName(resultSet.getString("first_name")).setLastName(resultSet.getString("last_name")).setEmail(resultSet.getString("email")).setPhone(resultSet.getString("phone")).setPassword(resultSet.getString("password")).setEnabled(Integer.parseInt(resultSet.getString("enabled")) == 1).setDateCreated(resultSet.getTimestamp("date_created")).setDateUpdated(resultSet.getTimestamp("date_modified")).setRoles(new RoleDaoImpl().getRolesForUser(connection, new UserDto(resultSet.getString("login")))).createUser()).setTotalSum(resultSet1.getDouble("total_sum")).setTitle(resultSet1.getString("title")).setStatus(status).createOrderHistory());
         }
         return orderHistories;
     }

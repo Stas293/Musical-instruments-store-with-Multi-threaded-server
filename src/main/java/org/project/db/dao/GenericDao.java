@@ -4,7 +4,7 @@ import java.sql.SQLException;
 import java.util.Optional;
 
 public interface GenericDao<T> extends AutoCloseable {
-    Long create(T entity) throws SQLException;
+    Optional<T> create(T entity) throws SQLException;
 
     Optional<T> findById(Long id);
 

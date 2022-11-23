@@ -1,4 +1,4 @@
-package org.project.db.dao;
+package org.project.db.dao.impl;
 
 import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.NotNull;
@@ -12,40 +12,34 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-public class InstrumentRepository {
-    static Object mutex = new Object();
+public class InstrumentDaoImpl {
 
     public static int numberOfInstruments(@NotNull Connection connection)
             throws SQLException {
-        synchronized (mutex) {
             @Language("MySQL") String queryString = "SELECT COUNT(*) FROM instrument_list";
             PreparedStatement preparedStatement = connection.prepareStatement(queryString);
             ResultSet resultSet = preparedStatement.executeQuery();
             resultSet.next();
             return Integer.parseInt(resultSet.getString(1));
-        }
     }
 
     public static ArrayList<Instrument> getAllInstruments(@NotNull Connection connection)
             throws SQLException {
-        synchronized (mutex) {
             @Language("MySQL") String queryString = "SELECT * FROM instrument_list";
             PreparedStatement preparedStatement = connection.prepareStatement(queryString);
             ResultSet resultSet = preparedStatement.executeQuery();
             ArrayList<Instrument> instruments = new ArrayList<>();
             Status status;
-            StatusRepository statusRepository = new StatusRepository();
+            StatusDaoImpl statusRepository = new StatusDaoImpl();
             while (resultSet.next()) {
                 status = statusRepository.getStatusById(connection, Long.parseLong(resultSet.getString("status_id")));
                 instruments.add(new InstrumentBuilderImpl().setId(Long.parseLong(resultSet.getString("instrument_id"))).setDateCreated(resultSet.getTimestamp("date_created")).setDateUpdated(resultSet.getTimestamp("date_updated")).setDescription(resultSet.getString("description")).setTitle(resultSet.getString("title")).setStatus(status).setPrice(Double.parseDouble(resultSet.getString("price"))).createInstrument());
             }
             return instruments;
-        }
     }
 
     public static ArrayList<Instrument> getInstrumentsFromBy(@NotNull Connection connection, int begin, int end)
             throws SQLException {
-        synchronized (mutex) {
             @Language("MySQL") String queryString = "SELECT * FROM instrument_list limit ? offset ?";
             PreparedStatement preparedStatement = connection.prepareStatement(queryString);
             preparedStatement.setInt(2, begin);
@@ -54,16 +48,14 @@ public class InstrumentRepository {
             ArrayList<Instrument> instruments = new ArrayList<>();
             Status status;
             while (resultSet.next()) {
-                status = new StatusRepository().getStatusById(connection, Long.parseLong(resultSet.getString("status_id")));
+                status = new StatusDaoImpl().getStatusById(connection, Long.parseLong(resultSet.getString("status_id")));
                 instruments.add(new InstrumentBuilderImpl().setId(Long.parseLong(resultSet.getString("instrument_id"))).setDateCreated(resultSet.getTimestamp("date_created")).setDateUpdated(resultSet.getTimestamp("date_updated")).setDescription(resultSet.getString("description")).setTitle(resultSet.getString("title")).setStatus(status).setPrice(Double.parseDouble(resultSet.getString("price"))).createInstrument());
             }
             return instruments;
-        }
     }
 
     public static Instrument getInstrumentByTitle(@NotNull Connection connection, @NotNull String title)
             throws SQLException {
-        synchronized (mutex) {
             @Language("MySQL") String queryString = "SELECT * FROM instrument_list WHERE title = ?";
             PreparedStatement preparedStatement = connection.prepareStatement(queryString);
             preparedStatement.setString(1, title);
@@ -72,13 +64,11 @@ public class InstrumentRepository {
             if (!found) {
                 return null;
             }
-            Status status = new StatusRepository().getStatusById(connection, Long.parseLong(resultSet.getString("status_id")));
+            Status status = new StatusDaoImpl().getStatusById(connection, Long.parseLong(resultSet.getString("status_id")));
             return new InstrumentBuilderImpl().setId(Long.parseLong(resultSet.getString("instrument_id"))).setDateCreated(resultSet.getTimestamp("date_created")).setDateUpdated(resultSet.getTimestamp("date_updated")).setDescription(resultSet.getString("description")).setTitle(resultSet.getString("title")).setStatus(status).setPrice(Double.parseDouble(resultSet.getString("price"))).createInstrument();
-        }
     }
 
     public static Instrument insertInstrument(@NotNull Connection connection, @NotNull Instrument instrument) throws SQLException {
-        synchronized (mutex) {
             try {
                 @Language("MySQL") String queryString = "INSERT INTO instrument_list (description, title, status_id, price) " +
                         "VALUES (?, ?, ?, ?)";
@@ -94,12 +84,10 @@ public class InstrumentRepository {
                 e.printStackTrace();
             }
             return getInstrumentByTitle(connection, instrument.getTitle());
-        }
     }
 
     public static Instrument changeStatusOfInstrument(@NotNull Connection connection, @NotNull Instrument instrument, @NotNull Status status)
             throws SQLException {
-        synchronized (mutex) {
             @Language("MySQL") String queryString = "UPDATE instrument_list SET status_id = ? WHERE instrument_id = ?";
             PreparedStatement preparedStatement = connection.prepareStatement(queryString);
             preparedStatement.setLong(1, status.getId());
@@ -107,7 +95,6 @@ public class InstrumentRepository {
             preparedStatement.executeUpdate();
             connection.commit();
             return getInstrumentByTitle(connection, instrument.getTitle());
-        }
     }
 }
 

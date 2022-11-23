@@ -1,5 +1,7 @@
 package org.project.db.dao;
 
+import org.project.db.dao.impl.JDBCDaoFactory;
+
 public abstract class DaoFactory {
     private static volatile DaoFactory daoFactory;
 
@@ -21,7 +23,9 @@ public abstract class DaoFactory {
 
     public abstract StatusDao createStatusDao();
 
-    public abstract RequestDao createRequestDao();
+    public abstract OrderDao createOrderDao();
 
-    public abstract HistoryRequestDao createHistoryRequestDao();
+    public abstract InstrumentDao createInstrumentDao();
+
+    public abstract InstrumentOrderDao createInstrumentOrderDao();
 }

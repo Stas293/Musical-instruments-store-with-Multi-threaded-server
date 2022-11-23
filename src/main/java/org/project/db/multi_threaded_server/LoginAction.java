@@ -1,6 +1,6 @@
 package org.project.db.multi_threaded_server;
 
-import org.project.db.dao.UserRepository;
+import org.project.db.dao.impl.UserDaoImpl;
 import org.project.db.dto.LoginDto;
 import org.project.db.dto.UserDto;
 import org.project.db.model.User;
@@ -20,7 +20,7 @@ public class LoginAction implements Command {
     @Override
     public void execute() throws ClassNotFoundException, IOException {
         LoginDto s = (LoginDto) inputObjectFromClient.readObject();
-        User user = new UserRepository().findUserByLogin(multiThreadServer.connection, new UserDto(s.getLogin()));
+        User user = new UserDaoImpl().findUserByLogin(multiThreadServer.connection, new UserDto(s.getLogin()));
         if (user != null) {
             if (!user.isEnabled()) {
                 outputObjectToClient.writeObject("User is disabled");

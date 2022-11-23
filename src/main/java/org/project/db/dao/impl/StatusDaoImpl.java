@@ -1,7 +1,8 @@
-package org.project.db.dao;
+package org.project.db.dao.impl;
 
 import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.NotNull;
+import org.project.db.dao.StatusDao;
 import org.project.db.model.Status;
 import org.project.db.model.builder.StatusBuilderImpl;
 
@@ -10,8 +11,16 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
-public class StatusRepository {
+public class StatusDaoImpl implements StatusDao {
+    private final Connection connection;
+
+    public StatusDaoImpl(Connection connection) {
+        this.connection = connection;
+    }
+
     public synchronized Status getStatusById(@NotNull Connection connection, @NotNull Long id)
             throws SQLException {
         @Language("MySQL") String queryString = "select * from status where status_id = ?";
@@ -73,5 +82,50 @@ public class StatusRepository {
             return null;
         }
         return new StatusBuilderImpl().setId(Long.parseLong(resultSet.getString("status_id"))).setCode(resultSet.getString("code")).setName(resultSet.getString("name")).setClosed(Integer.parseInt(resultSet.getString("closed")) == 1).createStatus();
+    }
+
+    @Override
+    public Optional<Status> create(Status entity) throws SQLException {
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<Status> findById(Long id) {
+        return Optional.empty();
+    }
+
+    @Override
+    public void update(Status entity) throws SQLException {
+
+    }
+
+    @Override
+    public void delete(Long id) throws SQLException {
+
+    }
+
+    @Override
+    public void close() {
+
+    }
+
+    @Override
+    public Optional<Status> findByCode(String code) {
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<Status> findByRequestId(Long requestId) {
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<Status> findByHistoryRequestId(Long historyRequestId) {
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<List<Status>> findNextStatusesForCurrentStatusById(Long id) {
+        return Optional.empty();
     }
 }

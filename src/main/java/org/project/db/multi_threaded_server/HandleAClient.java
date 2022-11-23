@@ -1,6 +1,6 @@
 package org.project.db.multi_threaded_server;
 
-import org.project.db.dao.*;
+import org.project.db.dao.impl.*;
 import org.project.db.dto.*;
 import org.project.db.model.*;
 import org.project.db.model.builder.OrderHistoryBuilderImpl;
@@ -45,12 +45,12 @@ class HandleAClient implements Runnable {
 
                             break;
                         case "allUserDtos":
-                            outputObjectToClient.writeObject(new UserRepository().getAllUsers(multiThreadServer.connection));
+                            outputObjectToClient.writeObject(new UserDaoImpl().getAllUsers(multiThreadServer.connection));
                             break;
                         case "reallyDisableUser":
                             Object object = inputObjectFromClient.readObject();
                             if (object instanceof UserDto) {
-                                new UserRepository().disableUser(multiThreadServer.connection, (UserDto) object);
+                                new UserDaoImpl().disableUser(multiThreadServer.connection, (UserDto) object);
                                 outputObjectToClient.writeObject("Successfully disabled user");
                             } else {
                                 outputObjectToClient.writeObject("Wrong object");
@@ -59,7 +59,7 @@ class HandleAClient implements Runnable {
                         case "reallyEnableUser":
                             Object object1 = inputObjectFromClient.readObject();
                             if (object1 instanceof UserDto) {
-                                new UserRepository().enableUser(multiThreadServer.connection, (UserDto) object1);
+                                new UserDaoImpl().enableUser(multiThreadServer.connection, (UserDto) object1);
                                 outputObjectToClient.writeObject("Successfully enabled user");
                             } else {
                                 outputObjectToClient.writeObject("Wrong object");
@@ -68,8 +68,8 @@ class HandleAClient implements Runnable {
                         case "addRoleForUser":
                             System.out.println("addRoleForUser");
                             Object object2 = inputObjectFromClient.readObject();
-                            ArrayList<Role> allRoles = new RoleRepository().getAllRoles(multiThreadServer.connection);
-                            ArrayList<Role> haveRoles = new RoleRepository().getRolesForUser(multiThreadServer.connection, (UserDto) object2);
+                            ArrayList<Role> allRoles = new RoleDaoImpl().getAllRoles(multiThreadServer.connection);
+                            ArrayList<Role> haveRoles = new RoleDaoImpl().getRolesForUser(multiThreadServer.connection, (UserDto) object2);
                             System.out.println(allRoles);
                             System.out.println(haveRoles);
                             allRoles.removeAll(haveRoles);
@@ -78,59 +78,59 @@ class HandleAClient implements Runnable {
                         case "RoleForUser":
                             Object object3 = inputObjectFromClient.readObject();
                             UserRoleDto userRoleDto = (UserRoleDto) object3;
-                            new RoleRepository().insertRoleForUser(multiThreadServer.connection, new UserDto(userRoleDto.getLogin()), userRoleDto.getRoleName());
-                            outputObjectToClient.writeObject(new UserRepository().findUserByLogin(multiThreadServer.connection, new UserDto(userRoleDto.getLogin())));
+                            new RoleDaoImpl().insertRoleForUser(multiThreadServer.connection, new UserDto(userRoleDto.getLogin()), userRoleDto.getRoleName());
+                            outputObjectToClient.writeObject(new UserDaoImpl().findUserByLogin(multiThreadServer.connection, new UserDto(userRoleDto.getLogin())));
                             break;
                         case "changeEmail":
                             UserDto userDto = (UserDto) inputObjectFromClient.readObject();
                             String email = (String) inputObjectFromClient.readObject();
-                            outputObjectToClient.writeObject(new UserRepository().changeEmail(multiThreadServer.connection, userDto, email));
+                            outputObjectToClient.writeObject(new UserDaoImpl().changeEmail(multiThreadServer.connection, userDto, email));
                             break;
                         case "changeFirstName":
                             UserDto userDto1 = (UserDto) inputObjectFromClient.readObject();
                             String firstName = (String) inputObjectFromClient.readObject();
-                            outputObjectToClient.writeObject(new UserRepository().changeFirstName(multiThreadServer.connection, userDto1, firstName));
+                            outputObjectToClient.writeObject(new UserDaoImpl().changeFirstName(multiThreadServer.connection, userDto1, firstName));
                             break;
                         case "changeLastName":
                             UserDto userDto2 = (UserDto) inputObjectFromClient.readObject();
                             String lastName = (String) inputObjectFromClient.readObject();
-                            outputObjectToClient.writeObject(new UserRepository().changeLastName(multiThreadServer.connection, userDto2, lastName));
+                            outputObjectToClient.writeObject(new UserDaoImpl().changeLastName(multiThreadServer.connection, userDto2, lastName));
                             break;
                         case "changePhone":
                             UserDto userDto3 = (UserDto) inputObjectFromClient.readObject();
                             String phone = (String) inputObjectFromClient.readObject();
-                            outputObjectToClient.writeObject(new UserRepository().changePhone(multiThreadServer.connection, userDto3, phone));
+                            outputObjectToClient.writeObject(new UserDaoImpl().changePhone(multiThreadServer.connection, userDto3, phone));
                             break;
                         case "changePassword":
                             UserDto userDto4 = (UserDto) inputObjectFromClient.readObject();
                             String password = (String) inputObjectFromClient.readObject();
-                            outputObjectToClient.writeObject(new UserRepository().changePassword(multiThreadServer.connection, userDto4, password));
+                            outputObjectToClient.writeObject(new UserDaoImpl().changePassword(multiThreadServer.connection, userDto4, password));
                             break;
                         case "getStatuses":
-                            outputObjectToClient.writeObject(new StatusRepository().getAllStatuses(multiThreadServer.connection));
+                            outputObjectToClient.writeObject(new StatusDaoImpl().getAllStatuses(multiThreadServer.connection));
                             break;
                         case "getNumberOfInstruments":
-                            outputObjectToClient.writeObject(InstrumentRepository.numberOfInstruments(multiThreadServer.connection));
+                            outputObjectToClient.writeObject(InstrumentDaoImpl.numberOfInstruments(multiThreadServer.connection));
                             break;
                         case "addInstrument":
                             Instrument instrument = (Instrument) inputObjectFromClient.readObject();
-                            outputObjectToClient.writeObject(InstrumentRepository.insertInstrument(multiThreadServer.connection, instrument));
+                            outputObjectToClient.writeObject(InstrumentDaoImpl.insertInstrument(multiThreadServer.connection, instrument));
                             break;
                         case "getAllInstruments":
-                            outputObjectToClient.writeObject(InstrumentRepository.getAllInstruments(multiThreadServer.connection));
+                            outputObjectToClient.writeObject(InstrumentDaoImpl.getAllInstruments(multiThreadServer.connection));
                             break;
                         case "getInstrumentByTitle":
                             String title = (String) inputObjectFromClient.readObject();
-                            outputObjectToClient.writeObject(InstrumentRepository.getInstrumentByTitle(multiThreadServer.connection, title));
+                            outputObjectToClient.writeObject(InstrumentDaoImpl.getInstrumentByTitle(multiThreadServer.connection, title));
                             break;
                         case "makeOrder":
-                            Status nextStatus = new StatusRepository().findNextStatus(multiThreadServer.connection, new StatusRepository().getStatusByName(multiThreadServer.connection, "Available"));
+                            Status nextStatus = new StatusDaoImpl().findNextStatus(multiThreadServer.connection, new StatusDaoImpl().getStatusByName(multiThreadServer.connection, "Available"));
                             outputObjectToClient.writeObject(nextStatus);
                             OrderDto orderDto = (OrderDto) inputObjectFromClient.readObject();
                             ArrayList<InstrumentOrder> instrumentOrders = (ArrayList<InstrumentOrder>) inputObjectFromClient.readObject();
-                            Order order = new OrderRepository().insertOrder(multiThreadServer.connection, orderDto);
+                            Order order = new OrderDaoImpl().insertOrder(multiThreadServer.connection, orderDto);
                             for (InstrumentOrder instrumentOrder : instrumentOrders) {
-                                InstrumentOrderRepository.insertInstrumentOrder(multiThreadServer.connection, instrumentOrder, order);
+                                InstrumentOrderDaoImpl.insertInstrumentOrder(multiThreadServer.connection, instrumentOrder, order);
                             }
                             outputObjectToClient.writeObject(order);
                             break;
@@ -138,33 +138,33 @@ class HandleAClient implements Runnable {
                             Object object8 = inputObjectFromClient.readObject();
                             System.out.println(object8);
                             UserDto userDto5 = (UserDto) object8;
-                            outputObjectToClient.writeObject(new OrderRepository().getAllOrders(multiThreadServer.connection, userDto5));
+                            outputObjectToClient.writeObject(new OrderDaoImpl().getAllOrders(multiThreadServer.connection, userDto5));
                             break;
                         case "getAllHistoryOrdersForUser":
                             UserDto userDto6 = (UserDto) inputObjectFromClient.readObject();
-                            outputObjectToClient.writeObject(new OrderRepository().getUserOrderHistory(multiThreadServer.connection, userDto6));
+                            outputObjectToClient.writeObject(new OrderDaoImpl().getUserOrderHistory(multiThreadServer.connection, userDto6));
                             break;
                         case "getOrderByUser":
                             UserDto userDto7 = (UserDto) inputObjectFromClient.readObject();
-                            ArrayList<Order> orders = new OrderRepository().getAllOrders(multiThreadServer.connection, userDto7);
+                            ArrayList<Order> orders = new OrderDaoImpl().getAllOrders(multiThreadServer.connection, userDto7);
                             outputObjectToClient.writeObject(orders);
                             break;
                         case "changeStatusOfOrder":
                             Long id = (long) Integer.parseInt(String.valueOf(inputObjectFromClient.readObject()));
-                            Status nextStatuss = new OrderRepository().updateOrderStatus(multiThreadServer.connection, id, new StatusRepository().findNextStatus(multiThreadServer.connection, new OrderRepository().getOrderStatus(multiThreadServer.connection, id)));
+                            Status nextStatuss = new OrderDaoImpl().updateOrderStatus(multiThreadServer.connection, id, new StatusDaoImpl().findNextStatus(multiThreadServer.connection, new OrderDaoImpl().getOrderStatus(multiThreadServer.connection, id)));
                             System.out.println(nextStatuss);
                             if (Objects.equals(nextStatuss.getName(), "Arrived")) {
-                                double totalSum = new OrderRepository().getTotalSum(multiThreadServer.connection, id);
-                                Order orderToHistory = new OrderRepository().getOrderById(multiThreadServer.connection, id);
-                                InstrumentOrderRepository.deleteAllInstrumentOrdersByOrderId(multiThreadServer.connection, id);
-                                new OrderRepository().deleteOrder(multiThreadServer.connection, id);
-                                System.out.println(new OrderRepository().insertOrderHistory(multiThreadServer.connection, new OrderHistoryBuilderImpl().setUser(new UserRepository().findUserByLogin(multiThreadServer.connection, new UserDto(orderToHistory.getLogin()))).setTotalSum(totalSum).setTitle(orderToHistory.getTitle()).setStatus(orderToHistory.getStatus()).createOrderHistory()));
+                                double totalSum = new OrderDaoImpl().getTotalSum(multiThreadServer.connection, id);
+                                Order orderToHistory = new OrderDaoImpl().getOrderById(multiThreadServer.connection, id);
+                                InstrumentOrderDaoImpl.deleteAllInstrumentOrdersByOrderId(multiThreadServer.connection, id);
+                                new OrderDaoImpl().deleteOrder(multiThreadServer.connection, id);
+                                System.out.println(new OrderDaoImpl().insertOrderHistory(multiThreadServer.connection, new OrderHistoryBuilderImpl().setUser(new UserDaoImpl().findUserByLogin(multiThreadServer.connection, new UserDto(orderToHistory.getLogin()))).setTotalSum(totalSum).setTitle(orderToHistory.getTitle()).setStatus(orderToHistory.getStatus()).createOrderHistory()));
                             }
                             break;
                         case "changeStatusOfInstrument":
                             Instrument instrumentToChangeStatus = (Instrument) inputObjectFromClient.readObject();
                             Status statusToUse = (Status) inputObjectFromClient.readObject();
-                            outputObjectToClient.writeObject(InstrumentRepository.changeStatusOfInstrument(multiThreadServer.connection, instrumentToChangeStatus, statusToUse));
+                            outputObjectToClient.writeObject(InstrumentDaoImpl.changeStatusOfInstrument(multiThreadServer.connection, instrumentToChangeStatus, statusToUse));
                             break;
                         default:
                             throw new IllegalStateException("Unexpected value: " + command);
