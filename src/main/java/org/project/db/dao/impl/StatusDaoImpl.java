@@ -17,7 +17,7 @@ import java.util.Optional;
 import java.util.logging.Logger;
 
 public class StatusDaoImpl implements StatusDao {
-    private Connection connection;
+    private final Connection connection;
     private final Logger logger = Logger.getLogger(StatusDaoImpl.class.getName());
 
     public StatusDaoImpl(Connection connection) {
