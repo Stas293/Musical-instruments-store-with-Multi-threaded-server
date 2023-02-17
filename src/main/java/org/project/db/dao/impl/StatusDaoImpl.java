@@ -5,7 +5,6 @@ import org.jetbrains.annotations.NotNull;
 import org.project.db.dao.StatusDao;
 import org.project.db.dao.mapper.StatusMapper;
 import org.project.db.model.Status;
-import org.project.db.model.builder.StatusBuilderImpl;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -110,7 +109,7 @@ public class StatusDaoImpl implements StatusDao {
 
     @Override
     public void delete(Long id) throws SQLException {
-        try (PreparedStatement preparedStatement = connection.prepareStatement("delete from status where status_id = ?")) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM status WHERE status_id = ?")) {
             preparedStatement.setLong(1, id);
             preparedStatement.executeUpdate();
         } catch (SQLException e) {

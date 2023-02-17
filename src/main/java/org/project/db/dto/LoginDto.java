@@ -1,22 +1,6 @@
 package org.project.db.dto;
 
-public class LoginDto implements java.io.Serializable {
-    private final String login;
-    private final String password;
-
-    public LoginDto(String login, String password) {
-        this.login = login;
-        this.password = password;
-    }
-
-    public String getLogin() {
-        return login;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
+public record LoginDto(String login, String password) implements java.io.Serializable {
     @Override
     public String toString() {
         return "LoginDto{" +

@@ -1,20 +1,19 @@
 package org.project.db.dao;
 
-import org.jetbrains.annotations.NotNull;
 import org.project.db.dto.OrderDto;
 import org.project.db.dto.UserDto;
 import org.project.db.model.Order;
 import org.project.db.model.OrderHistory;
 import org.project.db.model.Status;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 
 public interface OrderDao extends GenericDao<Order> {
     Order insertOrder(OrderDto orderDto) throws SQLException;
 
-    ArrayList<Order> getAllOrders(UserDto userDto) throws SQLException;
+    List<Order> getAllOrders(UserDto userDto) throws SQLException;
 
     Status getOrderStatus(Long id) throws SQLException;
 

@@ -1,8 +1,10 @@
 package org.project.db.dao.impl;
 
 import org.intellij.lang.annotations.Language;
-import org.jetbrains.annotations.NotNull;
 import org.project.db.dao.OrderDao;
+import org.project.db.dao.UserDao;
+import org.project.db.dao.mapper.OrderMapper;
+import org.project.db.dao.mapper.StatusMapper;
 import org.project.db.dto.OrderDto;
 import org.project.db.dto.UserDto;
 import org.project.db.model.*;
@@ -13,10 +15,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 public class OrderDaoImpl implements OrderDao {
     private final Connection connection;
+    private static final Logger logger = Logger.getLogger(OrderDaoImpl.class.getName());
 
     public OrderDaoImpl(Connection connection) {
         this.connection = connection;
@@ -26,13 +31,13 @@ public class OrderDaoImpl implements OrderDao {
     public Order insertOrder(OrderDto orderDto) throws SQLException {
         String queryString = "SELECT user_id FROM user_list WHERE login = ?";
         PreparedStatement preparedStatement = connection.prepareStatement(queryString);
-        preparedStatement.setString(1, orderDto.getLogin());
+        preparedStatement.setString(1, orderDto.login());
         ResultSet resultSet = preparedStatement.executeQuery();
         resultSet.next();
         Long userId = resultSet.getLong("user_id");
         String queryString1 = "SELECT status_id FROM status WHERE name = ?";
         preparedStatement = connection.prepareStatement(queryString1);
-        preparedStatement.setString(1, orderDto.getStatus().getName());
+        preparedStatement.setString(1, orderDto.status().getName());
         resultSet = preparedStatement.executeQuery();
         resultSet.next();
         Long statusId = resultSet.getLong("status_id");
@@ -40,7 +45,7 @@ public class OrderDaoImpl implements OrderDao {
         preparedStatement = connection.prepareStatement(queryString2);
         preparedStatement.setString(1, String.valueOf(userId));
         preparedStatement.setString(2, String.valueOf(statusId));
-        preparedStatement.setString(3, orderDto.getTitle());
+        preparedStatement.setString(3, orderDto.title());
         preparedStatement.executeUpdate();
         String queryString3 = "SELECT * FROM order_list WHERE user_id = ? order by date_created desc limit 1";
         preparedStatement = connection.prepareStatement(queryString3);
@@ -48,14 +53,14 @@ public class OrderDaoImpl implements OrderDao {
         resultSet = preparedStatement.executeQuery();
         resultSet.next();
         connection.commit();
-        return new OrderBuilderImpl().setId(Long.parseLong(resultSet.getString("order_id"))).setDateCreated(resultSet.getTimestamp("date_created")).setLogin(new UserDaoImpl().findUserById(connection, Long.valueOf(resultSet.getString("user_id"))).getLogin()).setTitle(resultSet.getString("title")).setStatus(new StatusDaoImpl().getStatusById(connection, statusId)).setClosed(Integer.parseInt(resultSet.getString("closed")) == 1).createOrder();
+        return new OrderMapper().extractFromResultSet(resultSet);
     }
 
     @Override
-    public ArrayList<Order> getAllOrders(UserDto userDto) throws SQLException {
+    public List<Order> getAllOrders(UserDto userDto) throws SQLException {
         @Language("MySQL") String queryString = "SELECT user_id FROM user_list WHERE login = ?";
         PreparedStatement preparedStatement = connection.prepareStatement(queryString);
-        preparedStatement.setString(1, userDto.getLogin());
+        preparedStatement.setString(1, userDto.login());
         ResultSet resultSet = preparedStatement.executeQuery();
         boolean isResult = resultSet.next();
         if (!isResult) {
@@ -73,7 +78,7 @@ public class OrderDaoImpl implements OrderDao {
             preparedStatement1.setString(1, resultSet.getString("status_id"));
             ResultSet resultSet1 = preparedStatement1.executeQuery();
             resultSet1.next();
-            Status status = new StatusBuilderImpl().setId(resultSet1.getLong("status_id")).setCode(resultSet1.getString("code")).setName(resultSet1.getString("name")).setClosed(Integer.parseInt(resultSet1.getString("closed")) == 1).createStatus();
+            Status status = new StatusMapper().extractFromResultSet(resultSet1);
             @Language("MySQL") String queryString3 = "SELECT * FROM instrument_order WHERE order_id = ?";
             PreparedStatement preparedStatement2 = connection.prepareStatement(queryString3);
             preparedStatement2.setString(1, resultSet.getString("order_id"));
@@ -90,10 +95,10 @@ public class OrderDaoImpl implements OrderDao {
                 preparedStatement4.setString(1, resultSet3.getString("status_id"));
                 ResultSet resultSet4 = preparedStatement4.executeQuery();
                 resultSet4.next();
-                Status status1 = new StatusBuilderImpl().setId(resultSet4.getLong("status_id")).setCode(resultSet4.getString("code")).setName(resultSet4.getString("name")).setClosed(Integer.parseInt(resultSet4.getString("closed")) == 1).createStatus();
+                Status status1 = new StatusMapper().extractFromResultSet(resultSet4);
                 instruments.add(new InstrumentOrderBuilderImpl().setInstrument(new InstrumentBuilderImpl().setId(resultSet3.getLong("instrument_id")).setDateCreated(resultSet3.getTimestamp("date_created")).setDateUpdated(resultSet3.getTimestamp("date_updated")).setDescription(resultSet3.getString("description")).setTitle(resultSet3.getString("title")).setStatus(status1).setPrice(Double.parseDouble(resultSet3.getString("price"))).createInstrument()).setPrice(resultSet2.getDouble("price")).setQuantity(resultSet2.getInt("quantity")).createInstrumentOrder());
             }
-            Order order = new OrderBuilderImpl().setId(Long.parseLong(resultSet.getString("order_id"))).setDateCreated(resultSet.getTimestamp("date_created")).setLogin(new UserDaoImpl().findUserById(connection, Long.valueOf(resultSet.getString("user_id"))).getLogin()).setTitle(resultSet.getString("title")).setStatus(status).setClosed(Integer.parseInt(resultSet.getString("closed")) == 1).createOrder();
+            Order order = new OrderMapper().extractFromResultSet(resultSet);
             order.setInstruments(instruments);
             orders.add(order);
         }
@@ -108,7 +113,12 @@ public class OrderDaoImpl implements OrderDao {
         ResultSet resultSet = preparedStatement.executeQuery();
         resultSet.next();
         Long statusId = resultSet.getLong("status_id");
-        return new StatusDaoImpl().getStatusById(connection, statusId);
+        try (PreparedStatement preparedStatement1 = connection.prepareStatement("SELECT * FROM status WHERE status_id = ?")) {
+            preparedStatement1.setString(1, String.valueOf(statusId));
+            ResultSet resultSet1 = preparedStatement1.executeQuery();
+            resultSet1.next();
+            return new StatusMapper().extractFromResultSet(resultSet1);
+        }
     }
 
     @Override
@@ -154,7 +164,7 @@ public class OrderDaoImpl implements OrderDao {
             Status status1 = new StatusBuilderImpl().setId(resultSet4.getLong("status_id")).setCode(resultSet4.getString("code")).setName(resultSet4.getString("name")).setClosed(Integer.parseInt(resultSet4.getString("closed")) == 1).createStatus();
             instruments.add(new InstrumentOrderBuilderImpl().setInstrument(new InstrumentBuilderImpl().setId(resultSet3.getLong("instrument_id")).setDateCreated(resultSet3.getTimestamp("date_created")).setDateUpdated(resultSet3.getTimestamp("date_updated")).setDescription(resultSet3.getString("description")).setTitle(resultSet3.getString("title")).setStatus(status1).setPrice(Double.parseDouble(resultSet3.getString("price"))).createInstrument()).setPrice(resultSet2.getDouble("price")).setQuantity(resultSet2.getInt("quantity")).createInstrumentOrder());
         }
-        Order order = new OrderBuilderImpl().setId(Long.parseLong(resultSet.getString("order_id"))).setDateCreated(resultSet.getTimestamp("date_created")).setLogin(new UserDaoImpl().findUserById(connection, Long.valueOf(resultSet.getString("user_id"))).getLogin()).setTitle(resultSet.getString("title")).setStatus(status).setClosed(Integer.parseInt(resultSet.getString("closed")) == 1).createOrder();
+        Order order = new OrderMapper().extractFromResultSet(resultSet);
         order.setInstruments(instruments);
         return order;
     }
@@ -186,7 +196,7 @@ public class OrderDaoImpl implements OrderDao {
     }
 
     @Override
-    public synchronized Order deleteOrder(Long id) throws SQLException {
+    public Order deleteOrder(Long id) throws SQLException {
         @Language("MySQL") String queryString1 = "SELECT * FROM order_list WHERE order_id = ?";
         PreparedStatement preparedStatement1 = connection.prepareStatement(queryString1);
         preparedStatement1.setString(1, String.valueOf(id));
@@ -197,14 +207,14 @@ public class OrderDaoImpl implements OrderDao {
         preparedStatement.setString(1, String.valueOf(id));
         preparedStatement.executeUpdate();
         connection.commit();
-        return new OrderBuilderImpl().setId(Long.parseLong(resultSet1.getString("order_id"))).setDateCreated(resultSet1.getTimestamp("date_created")).setLogin(new UserDaoImpl().findUserById(connection, Long.valueOf(resultSet1.getString("user_id"))).getLogin()).setTitle(resultSet1.getString("title")).setStatus(new StatusDaoImpl().getStatusById(connection, Long.parseLong(resultSet1.getString("status_id")))).setClosed(Integer.parseInt(resultSet1.getString("closed")) == 1).createOrder();
+        return new OrderMapper().extractFromResultSet(resultSet1);
     }
 
     @Override
     public ArrayList<OrderHistory> getUserOrderHistory(UserDto userDto) throws SQLException {
         @Language("MySQL") String queryString = "SELECT * FROM user_list WHERE login = ?";
         PreparedStatement preparedStatement = connection.prepareStatement(queryString);
-        preparedStatement.setString(1, userDto.getLogin());
+        preparedStatement.setString(1, userDto.login());
         ResultSet resultSet = preparedStatement.executeQuery();
         resultSet.next();
         @Language("MySQL") String queryString1 = "SELECT * FROM order_history WHERE user_id = ? order by date_created";
@@ -219,7 +229,7 @@ public class OrderDaoImpl implements OrderDao {
             ResultSet resultSet2 = preparedStatement2.executeQuery();
             resultSet2.next();
             Status status = new StatusBuilderImpl().setId(resultSet2.getLong("status_id")).setCode(resultSet2.getString("code")).setName(resultSet2.getString("name")).setClosed(Integer.parseInt(resultSet2.getString("closed")) == 1).createStatus();
-            orderHistories.add(new OrderHistoryBuilderImpl().setId(Long.parseLong(resultSet1.getString("history_id"))).setDateCreated(resultSet1.getTimestamp("date_created")).setUser(new UserBuilderImpl().setId(Long.parseLong(resultSet1.getString("user_id"))).setLogin(resultSet.getString("login")).setFirstName(resultSet.getString("first_name")).setLastName(resultSet.getString("last_name")).setEmail(resultSet.getString("email")).setPhone(resultSet.getString("phone")).setPassword(resultSet.getString("password")).setEnabled(Integer.parseInt(resultSet.getString("enabled")) == 1).setDateCreated(resultSet.getTimestamp("date_created")).setDateUpdated(resultSet.getTimestamp("date_modified")).setRoles(new RoleDaoImpl().getRolesForUser(connection, new UserDto(resultSet.getString("login")))).createUser()).setTotalSum(resultSet1.getDouble("total_sum")).setTitle(resultSet1.getString("title")).setStatus(status).createOrderHistory());
+            orderHistories.add(new OrderHistoryBuilderImpl().setId(Long.parseLong(resultSet1.getString("history_id"))).setDateCreated(resultSet1.getTimestamp("date_created")).setUser(new UserBuilderImpl().setId(Long.parseLong(resultSet1.getString("user_id"))).setLogin(resultSet.getString("login")).setFirstName(resultSet.getString("first_name")).setLastName(resultSet.getString("last_name")).setEmail(resultSet.getString("email")).setPhone(resultSet.getString("phone")).setPassword(resultSet.getString("password")).setEnabled(Integer.parseInt(resultSet.getString("enabled")) == 1).setDateCreated(resultSet.getTimestamp("date_created")).setDateUpdated(resultSet.getTimestamp("date_modified")).setRoles(JDBCDaoFactory.getInstance().createRoleDao().getRolesForUser(new UserDto(resultSet.getString("login")))).createUser()).setTotalSum(resultSet1.getDouble("total_sum")).setTitle(resultSet1.getString("title")).setStatus(status).createOrderHistory());
         }
         return orderHistories;
     }
@@ -227,8 +237,9 @@ public class OrderDaoImpl implements OrderDao {
     @Override
     public Optional<Order> create(Order entity) throws SQLException {
         @Language("MySQL") String queryString = "INSERT INTO order_list (user_id, title, status_id) VALUES (?, ?, ?)";
-        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
-            preparedStatement.setString(1, String.valueOf(JDBCDaoFactory.getInstance().createUserDao().findByLogin(entity.getLogin()).getId()));
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString);
+             UserDao userDao = JDBCDaoFactory.getInstance().createUserDao()) {
+            preparedStatement.setString(1, String.valueOf(userDao.findByLogin(entity.getLogin()).orElseThrow().getId()));
             preparedStatement.setString(2, entity.getTitle());
             preparedStatement.setString(3, String.valueOf(entity.getStatus().getId()));
             preparedStatement.executeUpdate();
@@ -244,16 +255,43 @@ public class OrderDaoImpl implements OrderDao {
 
     @Override
     public void update(Order entity) throws SQLException {
-
+        @Language("MySQL") String queryString = "UPDATE order_list SET title = ?, status_id = ?, closed = ? WHERE order_id = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            preparedStatement.setString(1, entity.getTitle());
+            preparedStatement.setLong(2, entity.getStatus().getId());
+            preparedStatement.setBoolean(3, entity.isClosed());
+            preparedStatement.setLong(4, entity.getId());
+            preparedStatement.executeUpdate();
+            connection.commit();
+        } catch (SQLException e) {
+            logger.warning(e.getMessage());
+            connection.rollback();
+        } finally {
+            close();
+        }
     }
 
     @Override
     public void delete(Long id) throws SQLException {
-
+        @Language("MySQL") String queryString = "DELETE FROM order_list WHERE order_id = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            preparedStatement.setLong(1, id);
+            preparedStatement.executeUpdate();
+            connection.commit();
+        } catch (SQLException e) {
+            logger.warning(e.getMessage());
+            connection.rollback();
+        } finally {
+            close();
+        }
     }
 
     @Override
     public void close() {
-
+        try {
+            connection.close();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

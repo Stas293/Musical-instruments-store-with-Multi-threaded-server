@@ -2,7 +2,6 @@ package org.project.db.dao.impl;
 
 import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.NotNull;
-import org.project.db.dao.RoleDao;
 import org.project.db.dao.UserDao;
 import org.project.db.dao.mapper.UserMapper;
 import org.project.db.dto.RegistrationDto;
@@ -32,10 +31,10 @@ public class UserDaoImpl implements UserDao {
     public Optional<User> enableUser(UserDto userDto) throws SQLException {
         @Language("MySQL") String queryString = "UPDATE user_list SET enabled = 1 WHERE login = ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
-            preparedStatement.setString(1, userDto.getLogin());
+            preparedStatement.setString(1, userDto.login());
             preparedStatement.executeUpdate();
             connection.commit();
-            return findByLogin(userDto.getLogin());
+            return findByLogin(userDto.login());
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error while enabling user", e);
             connection.rollback();
@@ -65,12 +64,12 @@ public class UserDaoImpl implements UserDao {
     @Override
     public Optional<User> create(RegistrationDto registrationDto) throws SQLException {
         return create(new UserBuilderImpl()
-                .setLogin(registrationDto.getLogin())
-                .setPassword(registrationDto.getPassword())
-                .setFirstName(registrationDto.getFirstName())
-                .setLastName(registrationDto.getLastName())
-                .setEmail(registrationDto.getEmail())
-                .setPhone(registrationDto.getPhone())
+                .setLogin(registrationDto.login())
+                .setPassword(registrationDto.password())
+                .setFirstName(registrationDto.firstName())
+                .setLastName(registrationDto.lastName())
+                .setEmail(registrationDto.email())
+                .setPhone(registrationDto.phone())
                 .createUser());
     }
 
@@ -108,7 +107,7 @@ public class UserDaoImpl implements UserDao {
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                 User user = userMapper.extractFromResultSet(resultSet);
-                user.setRoles(new RoleDaoImpl(connection).getRolesForUser(new UserDto(user.getLogin())).get());
+                user.setRoles(new RoleDaoImpl(connection).getRolesForUser(new UserDto(user.getLogin())));
                 return Optional.of(userMapper.extractFromResultSet(resultSet));
             }
         } catch (SQLException e) {
@@ -176,7 +175,7 @@ public class UserDaoImpl implements UserDao {
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                 User user = userMapper.extractFromResultSet(resultSet);
-                user.setRoles(new RoleDaoImpl(connection).getRolesForUser(new UserDto(user.getLogin())).get());
+                user.setRoles(new RoleDaoImpl(connection).getRolesForUser(new UserDto(user.getLogin())));
                 return Optional.of(userMapper.extractFromResultSet(resultSet));
             }
         } catch (SQLException e) {
@@ -191,7 +190,7 @@ public class UserDaoImpl implements UserDao {
     public Optional<User> disableUser(UserDto userDto) {
         @Language("MySQL") String queryString = "UPDATE user_list SET enabled = 0 WHERE login = ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString);){
-            preparedStatement.setString(1, userDto.getLogin());
+            preparedStatement.setString(1, userDto.login());
             connection.setAutoCommit(false);
             preparedStatement.executeUpdate();
             connection.commit();
@@ -200,7 +199,7 @@ public class UserDaoImpl implements UserDao {
         } finally {
             close();
         }
-        return findByLogin(userDto.getLogin());
+        return findByLogin(userDto.login());
     }
 
     public Optional<User> changeEmail(@NotNull UserDto userDto, String email)
@@ -208,7 +207,7 @@ public class UserDaoImpl implements UserDao {
         @Language("MySQL") String queryString = "UPDATE user_list SET email = ? WHERE login = ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString);){
             preparedStatement.setString(1, email);
-            preparedStatement.setString(2, userDto.getLogin());
+            preparedStatement.setString(2, userDto.login());
             connection.setAutoCommit(false);
             preparedStatement.executeUpdate();
             connection.commit();
@@ -219,7 +218,7 @@ public class UserDaoImpl implements UserDao {
             connection.setAutoCommit(true);
             close();
         }
-        return findByLogin(userDto.getLogin());
+        return findByLogin(userDto.login());
     }
 
     public Optional<User> changeFirstName(@NotNull UserDto userDto, String firstName)
@@ -227,7 +226,7 @@ public class UserDaoImpl implements UserDao {
         @Language("MySQL") String queryString = "UPDATE user_list SET first_name = ? WHERE login = ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString);){
             preparedStatement.setString(1, firstName);
-            preparedStatement.setString(2, userDto.getLogin());
+            preparedStatement.setString(2, userDto.login());
             connection.setAutoCommit(false);
             preparedStatement.executeUpdate();
             connection.commit();
@@ -238,7 +237,7 @@ public class UserDaoImpl implements UserDao {
             connection.setAutoCommit(true);
             close();
         }
-        return findByLogin(userDto.getLogin());
+        return findByLogin(userDto.login());
     }
 
     public Optional<User> changeLastName(@NotNull UserDto userDto, String lastName)
@@ -246,7 +245,7 @@ public class UserDaoImpl implements UserDao {
         @Language("MySQL") String queryString = "UPDATE user_list SET last_name = ? WHERE login = ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString);){
             preparedStatement.setString(1, lastName);
-            preparedStatement.setString(2, userDto.getLogin());
+            preparedStatement.setString(2, userDto.login());
             connection.setAutoCommit(false);
             preparedStatement.executeUpdate();
             connection.commit();
@@ -257,7 +256,7 @@ public class UserDaoImpl implements UserDao {
             connection.setAutoCommit(true);
             close();
         }
-        return findByLogin(userDto.getLogin());
+        return findByLogin(userDto.login());
     }
 
     public Optional<User> changePhone(@NotNull UserDto userDto, String phone)
@@ -265,7 +264,7 @@ public class UserDaoImpl implements UserDao {
         @Language("MySQL") String queryString = "UPDATE user_list SET phone = ? WHERE login = ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString);){
             preparedStatement.setString(1, phone);
-            preparedStatement.setString(2, userDto.getLogin());
+            preparedStatement.setString(2, userDto.login());
             connection.setAutoCommit(false);
             preparedStatement.executeUpdate();
             connection.commit();
@@ -276,7 +275,7 @@ public class UserDaoImpl implements UserDao {
             connection.setAutoCommit(true);
             close();
         }
-        return findByLogin(userDto.getLogin());
+        return findByLogin(userDto.login());
     }
 
     public Optional<User> changePassword(@NotNull UserDto userDto, String password)
@@ -284,7 +283,7 @@ public class UserDaoImpl implements UserDao {
         @Language("MySQL") String queryString = "UPDATE user_list SET password = ? WHERE login = ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString);){
             preparedStatement.setString(1, password);
-            preparedStatement.setString(2, userDto.getLogin());
+            preparedStatement.setString(2, userDto.login());
             connection.setAutoCommit(false);
             preparedStatement.executeUpdate();
             connection.commit();
@@ -295,6 +294,6 @@ public class UserDaoImpl implements UserDao {
             connection.setAutoCommit(true);
             close();
         }
-        return findByLogin(userDto.getLogin());
+        return findByLogin(userDto.login());
     }
 }

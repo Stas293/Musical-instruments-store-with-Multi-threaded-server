@@ -11,9 +11,9 @@ public interface RoleDao extends GenericDao<Role> {
     Optional<Role> findByCode(String code);
     Optional<Role> findByName(String name);
 
-    Optional<List<Role>> getRolesForUser(UserDto userDto);
+    List<Role> getRolesForUser(UserDto userDto);
 
     List<Role> insertRoleForUser(UserDto userDto, String roleName) throws SQLException;
 
-    Optional<List<Role>> findAll();
+    List<Role> findAll();
 }
