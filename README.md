@@ -1,6 +1,16 @@
 # Musical-instruments-store-with-Multi-threaded-server
 
-This project is in the process of major renovation.
+GUI:
+
+![img_1.png](img_1.png)
+
+![img_2.png](img_2.png)
+
+Database schema:
+
+![img.png](img.png)
+
+
 
 1. This is a Maven project, so you can open this project in the IDE, and it will download all the required dependencies by itself.
 2. You can use sql script to create your own MySQL database copy. But there will be no users. You can register and then run a sql query to add the admin role to your user (and seller) to try out all the features associated with this app.
