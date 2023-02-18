@@ -11,9 +11,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class ChangeInstrumentGetByTitle {
+    private static final Logger logger = Logger.getLogger(ChangeInstrumentGetByTitle.class.getName());
     private final ObjectOutputStream toServer;
     private final ObjectInputStream fromServer;
-    private static final Logger logger = Logger.getLogger(ChangeInstrumentGetByTitle.class.getName());
 
     public ChangeInstrumentGetByTitle(ObjectOutputStream toServer, ObjectInputStream fromServer) {
         this.toServer = toServer;

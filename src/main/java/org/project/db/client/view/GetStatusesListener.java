@@ -12,13 +12,12 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class GetStatusesListener implements ActionListener {
-    private final DatabaseClient databaseClient;
     private static final Logger logger = Logger.getLogger(GetStatusesListener.class.getName());
+    private final DatabaseClient databaseClient;
     private final ObjectOutputStream toServer;
     private final ObjectInputStream fromServer;
 
@@ -42,7 +41,7 @@ public class GetStatusesListener implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         try {
             toServer.writeObject("getStatuses");
-            ArrayList<Status> statuses = (ArrayList<Status>) fromServer.readObject();
+            java.util.List<Status> statuses = (java.util.List<Status>) fromServer.readObject();
             databaseClient.getContentPane().removeAll();
             JPanel mainPanel = new JPanel();
             mainPanel.setLayout(new BorderLayout());

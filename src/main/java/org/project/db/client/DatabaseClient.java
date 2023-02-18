@@ -36,19 +36,11 @@ public class DatabaseClient extends JFrame {
     private transient ObjectInputStream fromServer;
     private User user = null;
 
-    public JTextField getTfPassword() {
-        return tfPassword;
-    }
-
-    public JTextField getTfLogin() {
-        return tfLogin;
-    }
-
     public DatabaseClient() {
         super("DatabaseClient");
         startView = new StartView(this, toServer, fromServer);
         startView.startView();
-        startView.getRegister().addActionListener(new RegisterListener(this, toServer, fromServer));
+        startView.getRegister().addActionListener(new RegisterListener(this, toServer));
         startView.getLogin().addActionListener(new LoginListener(this, toServer, fromServer));
 
         startView.getCloseButton().addActionListener(e -> {
@@ -82,6 +74,22 @@ public class DatabaseClient extends JFrame {
         } else if (object instanceof String) {
             System.out.println((String) object);
         }
+    }
+
+    public JTextField getTfPassword() {
+        return tfPassword;
+    }
+
+    public void setTfPassword(JTextField tfPassword) {
+        this.tfPassword = tfPassword;
+    }
+
+    public JTextField getTfLogin() {
+        return tfLogin;
+    }
+
+    public void setTfLogin(JTextField tfLogin) {
+        this.tfLogin = tfLogin;
     }
 
     public void loggedInUser() {
@@ -120,8 +128,17 @@ public class DatabaseClient extends JFrame {
             startView.startView();
         });
     }
+
     public UserDto getUserDto() {
         return new UserDto(user.getLogin());
+    }
+
+    public StartView getStartView() {
+        return startView;
+    }
+
+    public void setStartView(StartView startView) {
+        this.startView = startView;
     }
 
     class OpenConnectionListener implements ActionListener {
@@ -144,21 +161,5 @@ public class DatabaseClient extends JFrame {
                 logger.log(Level.WARNING, "Error while opening connection", e1);
             }
         }
-    }
-
-    public void setTfLogin(JTextField tfLogin) {
-        this.tfLogin = tfLogin;
-    }
-
-    public void setTfPassword(JTextField tfPassword) {
-        this.tfPassword = tfPassword;
-    }
-
-    public StartView getStartView() {
-        return startView;
-    }
-
-    public void setStartView(StartView startView) {
-        this.startView = startView;
     }
 }

@@ -13,16 +13,15 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class ChangeStatusOfInstrumentListener implements ActionListener {
+    private static final Logger logger = Logger.getLogger(ChangeStatusOfInstrumentListener.class.getName());
     private final DatabaseClient databaseClient;
     private final ObjectOutputStream toServer;
     private final ObjectInputStream fromServer;
-    private static final Logger logger = Logger.getLogger(ChangeStatusOfInstrumentListener.class.getName());
 
     public ChangeStatusOfInstrumentListener(DatabaseClient databaseClient, ObjectOutputStream toServer, ObjectInputStream fromServer) {
         this.databaseClient = databaseClient;
@@ -33,7 +32,7 @@ public class ChangeStatusOfInstrumentListener implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         try {
-            ArrayList<Status> statuses = getStatuses();
+            java.util.List<Status> statuses = getStatuses();
             databaseClient.getContentPane().removeAll();
             JPanel mainPanel = new JPanel();
             mainPanel.setLayout(new BorderLayout());
@@ -46,7 +45,8 @@ public class ChangeStatusOfInstrumentListener implements ActionListener {
             JButton btBack = new JButton(MainConstants.BACK);
             JPanel actionPanel = new JPanel();
             actionPanel.add(btBack);
-            btSearch.addActionListener(event -> new GetInstrumentAndChangeStatus(statuses, mainPanel, controlPanel, tfTitle, btBack, actionPanel));
+            btSearch.addActionListener(event ->
+                    new GetInstrumentAndChangeStatus(statuses, mainPanel, controlPanel, tfTitle, btBack, actionPanel));
             btBack.addActionListener(event -> databaseClient.loggedInUser());
             mainPanel.add(controlPanel, BorderLayout.NORTH);
             mainPanel.add(actionPanel, BorderLayout.SOUTH);
@@ -58,10 +58,9 @@ public class ChangeStatusOfInstrumentListener implements ActionListener {
         }
     }
 
-    private ArrayList<Status> getStatuses() throws IOException, ClassNotFoundException {
+    private java.util.List<Status> getStatuses() throws IOException, ClassNotFoundException {
         toServer.writeObject("getStatuses");
-        ArrayList<Status> statuses = (ArrayList<Status>) fromServer.readObject();
-        return statuses;
+        return (java.util.List<Status>) fromServer.readObject();
     }
 
     private class GetInstrumentAndChangeStatus implements ActionListener {
@@ -71,9 +70,11 @@ public class ChangeStatusOfInstrumentListener implements ActionListener {
         private final JTextField tfTitle;
         private final JButton btBack;
         private final JPanel actionPanel;
-        private final ChangeInstrumentGetByTitle changeInstrumentGetByTitle = new ChangeInstrumentGetByTitle(toServer, fromServer);
+        private final ChangeInstrumentGetByTitle changeInstrumentGetByTitle =
+                new ChangeInstrumentGetByTitle(toServer, fromServer);
 
-        public GetInstrumentAndChangeStatus(List<Status> statuses, JPanel mainPanel, JPanel controlPanel, JTextField tfTitle, JButton btBack, JPanel actionPanel) {
+        public GetInstrumentAndChangeStatus(List<Status> statuses, JPanel mainPanel, JPanel controlPanel,
+                                            JTextField tfTitle, JButton btBack, JPanel actionPanel) {
             this.statuses = statuses;
             this.mainPanel = mainPanel;
             this.controlPanel = controlPanel;

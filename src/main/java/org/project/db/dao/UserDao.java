@@ -28,4 +28,8 @@ public interface UserDao extends GenericDao<User> {
     Optional<User> changeLastName(UserDto userDto, String lastName) throws SQLException;
 
     Optional<User> changePhone(UserDto userDto, String phone) throws SQLException;
+
+    Optional<User> findByHistoryId(Long id);
+
+    Optional<User> findByOrderId(Long id);
 }

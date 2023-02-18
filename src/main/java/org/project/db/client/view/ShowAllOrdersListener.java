@@ -20,16 +20,36 @@ import java.util.logging.Logger;
 import java.util.stream.IntStream;
 
 public class ShowAllOrdersListener implements ActionListener {
+    private static final Logger logger = Logger.getLogger(ShowAllOrdersListener.class.getName());
     private final DatabaseClient databaseClient;
     private final ObjectOutputStream toServer;
     private final ObjectInputStream fromServer;
-
-    private static final Logger logger = Logger.getLogger(ShowAllOrdersListener.class.getName());
 
     public ShowAllOrdersListener(DatabaseClient databaseClient, ObjectOutputStream toServer, ObjectInputStream fromServer) {
         this.databaseClient = databaseClient;
         this.toServer = toServer;
         this.fromServer = fromServer;
+    }
+
+    static void addArrayToPanel(List<Order> orders, JPanel mainPanel, JPanel infoPanel, JLabel instrumentQuantity) {
+        infoPanel.add(instrumentQuantity);
+        for (Order order : orders) {
+            for (int j = 0; j < order.getInstruments().size(); j++) {
+                ChangeStatusOfOrderListener.addInstrumentsToPanel(infoPanel, order, j);
+            }
+        }
+        JScrollPane scrollPanel = new JScrollPane(infoPanel);
+        mainPanel.add(scrollPanel, BorderLayout.CENTER);
+    }
+
+    static void orderLayout(JPanel infoPanel, int size) {
+        infoPanel.setLayout(new GridLayout(size + 1, 6));
+        JLabel orderTitle = new JLabel("Order title");
+        infoPanel.add(orderTitle);
+        JLabel orderStatus = new JLabel("Order status");
+        infoPanel.add(orderStatus);
+        JLabel isClosed = new JLabel("Is closed");
+        infoPanel.add(isClosed);
     }
 
     @Override
@@ -40,7 +60,10 @@ public class ShowAllOrdersListener implements ActionListener {
             JPanel mainPanel = new JPanel();
             mainPanel.setLayout(new BorderLayout());
             JPanel infoPanel = new JPanel();
-            int size = (int) orders.stream().flatMapToInt(value -> IntStream.range(0, value.getInstruments().size())).count();
+            int size = (int) orders.stream()
+                    .flatMapToInt(value ->
+                            IntStream.range(0, value.getInstruments().size()))
+                    .count();
             orderLayout(infoPanel, size);
             JLabel instrumentTitle = new JLabel("Title");
             infoPanel.add(instrumentTitle);
@@ -70,26 +93,5 @@ public class ShowAllOrdersListener implements ActionListener {
             orders.addAll((List<Order>) fromServer.readObject());
         }
         return orders;
-    }
-
-    static void addArrayToPanel(List<Order> orders, JPanel mainPanel, JPanel infoPanel, JLabel instrumentQuantity) {
-        infoPanel.add(instrumentQuantity);
-        for (Order order : orders) {
-            for (int j = 0; j < order.getInstruments().size(); j++) {
-                ChangeStatusOfOrderListener.addInstrumentsToPanel(infoPanel, order, j);
-            }
-        }
-        JScrollPane scrollPanel = new JScrollPane(infoPanel);
-        mainPanel.add(scrollPanel, BorderLayout.CENTER);
-    }
-
-    static void orderLayout(JPanel infoPanel, int size) {
-        infoPanel.setLayout(new GridLayout(size + 1, 6));
-        JLabel orderTitle = new JLabel("Order title");
-        infoPanel.add(orderTitle);
-        JLabel orderStatus = new JLabel("Order status");
-        infoPanel.add(orderStatus);
-        JLabel isClosed = new JLabel("Is closed");
-        infoPanel.add(isClosed);
     }
 }

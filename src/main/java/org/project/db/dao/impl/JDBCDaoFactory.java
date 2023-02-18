@@ -2,35 +2,37 @@ package org.project.db.dao.impl;
 
 import org.project.db.dao.*;
 
+import java.sql.Connection;
+
 public class JDBCDaoFactory extends DaoFactory {
     @Override
-    public UserDao createUserDao() {
-        return new UserDaoImpl(DataSource.getConnection());
+    public UserDao createUserDao(Connection connection) {
+        return new UserDaoImpl(connection);
     }
 
     @Override
-    public RoleDao createRoleDao() {
-        return new RoleDaoImpl(DataSource.getConnection());
+    public RoleDao createRoleDao(Connection connection) {
+        return new RoleDaoImpl(connection);
     }
 
     @Override
-    public StatusDao createStatusDao() {
-        return new StatusDaoImpl(DataSource.getConnection());
+    public StatusDao createStatusDao(Connection connection) {
+        return new StatusDaoImpl(connection);
     }
 
     @Override
-    public OrderDao createOrderDao() {
-        return new OrderDaoImpl(DataSource.getConnection());
+    public OrderDao createOrderDao(Connection connection) {
+        return new OrderDaoImpl(connection);
     }
 
     @Override
-    public InstrumentDao createInstrumentDao() {
-        return new InstrumentDaoImpl(DataSource.getConnection());
+    public InstrumentDao createInstrumentDao(Connection connection) {
+        return new InstrumentDaoImpl(connection);
     }
 
     @Override
-    public InstrumentOrderDao createInstrumentOrderDao() {
-        return new InstrumentOrderDaoImpl(DataSource.getConnection());
+    public InstrumentOrderDao createInstrumentOrderDao(Connection connection) {
+        return new InstrumentOrderDaoImpl(connection);
     }
 
 }

@@ -3,8 +3,8 @@ package org.project.db.client.view_service;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.project.db.client.DatabaseClient;
+import org.project.db.model.Instrument;
 import org.project.db.model.Status;
-import org.project.db.model.builder.InstrumentBuilderImpl;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -12,7 +12,6 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.ArrayList;
 import java.util.Objects;
 
 
@@ -39,15 +38,22 @@ public class MakeInstrumentAndStatus implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         try {
-            if (tfDescription.getText().trim().isEmpty() || tfTitle.getText().trim().isEmpty() || Double.parseDouble(tfPrice.getText().trim()) < 0) {
+            if (tfDescription.getText().trim().isEmpty()
+                    || tfTitle.getText().trim().isEmpty()
+                    || Double.parseDouble(tfPrice.getText().trim()) < 0) {
                 return;
             }
             toServer.writeObject("getStatuses");
-            ArrayList<Status> statuses = (ArrayList<Status>) fromServer.readObject();
+            java.util.List<Status> statuses = (java.util.List<Status>) fromServer.readObject();
             String statusName = Objects.requireNonNull(cbStatus.getSelectedItem()).toString();
             Status status = statuses.stream().filter(s -> s.getName().equals(statusName)).findFirst().orElse(null);
             toServer.writeObject("addInstrument");
-            toServer.writeObject(new InstrumentBuilderImpl().setDescription(tfDescription.getText().trim()).setTitle(tfTitle.getText().trim()).setStatus(status).setPrice(Double.parseDouble(tfPrice.getText().trim())).createInstrument());
+            toServer.writeObject(Instrument.builder()
+                    .setDescription(tfDescription.getText().trim())
+                    .setTitle(tfTitle.getText().trim())
+                    .setStatus(status)
+                    .setPrice(Double.parseDouble(tfPrice.getText().trim()))
+                    .createInstrument());
             Object object = fromServer.readObject();
             System.out.println(object);
             databaseClient.loggedInUser();

@@ -15,6 +15,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class ActionSearch implements ActionListener {
+    private static final Logger logger = Logger.getLogger(ActionSearch.class.getName());
     private final JPanel mainPanel;
     private final JPanel controlPanel;
     private final JTextField tfTitle;
@@ -22,7 +23,6 @@ public class ActionSearch implements ActionListener {
     private final ObjectOutputStream toServer;
     private final ObjectInputStream fromServer;
     private final DatabaseClient databaseClient;
-    private static final Logger logger = Logger.getLogger(ActionSearch.class.getName());
 
     public ActionSearch(JPanel mainPanel, JPanel controlPanel, JTextField tfTitle, JButton btBack, ObjectOutputStream toServer, ObjectInputStream fromServer, DatabaseClient databaseClient) {
         this.mainPanel = mainPanel;
@@ -40,7 +40,13 @@ public class ActionSearch implements ActionListener {
             String title;
             toServer.writeObject("findByTitle");
             if (!tfTitle.getText().trim().isEmpty()) {
-                title = tfTitle.getText().trim().substring(0, 1).toUpperCase() + tfTitle.getText().trim().substring(1).toLowerCase();
+                title = tfTitle.getText()
+                        .trim()
+                        .substring(0, 1)
+                        .toUpperCase()
+                        + tfTitle.getText()
+                        .trim().substring(1)
+                        .toLowerCase();
             } else {
                 title = "";
             }

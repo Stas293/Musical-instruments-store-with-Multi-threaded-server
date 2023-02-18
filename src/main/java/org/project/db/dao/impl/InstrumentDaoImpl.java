@@ -2,9 +2,7 @@ package org.project.db.dao.impl;
 
 import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.NotNull;
-import org.project.db.dao.DaoFactory;
 import org.project.db.dao.InstrumentDao;
-import org.project.db.dao.StatusDao;
 import org.project.db.dao.mapper.InstrumentMapper;
 import org.project.db.model.Instrument;
 import org.project.db.model.Status;
@@ -28,6 +26,7 @@ public class InstrumentDaoImpl implements InstrumentDao {
         this.connection = connection;
     }
 
+    @Override
     public int numberOfInstruments() {
         @Language("MySQL") String queryString = "SELECT COUNT(*) FROM instrument_list";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
@@ -41,16 +40,15 @@ public class InstrumentDaoImpl implements InstrumentDao {
         return 0;
     }
 
+    @Override
     public List<Instrument> getAllInstruments() {
         @Language("MySQL") String queryString = "SELECT * FROM instrument_list";
-        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString);
-             StatusDao statusDao = DaoFactory.getInstance().createStatusDao()) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             ResultSet resultSet = preparedStatement.executeQuery();
             ArrayList<Instrument> instruments = new ArrayList<>();
             InstrumentMapper instrumentMapper = new InstrumentMapper();
             while (resultSet.next()) {
                 Instrument instrument = instrumentMapper.extractFromResultSet(resultSet);
-                instrument.setStatus(statusDao.findById(resultSet.getLong("status_id")).orElseThrow());
                 instruments.add(instrument);
             }
             return instruments;
@@ -60,8 +58,8 @@ public class InstrumentDaoImpl implements InstrumentDao {
         return Collections.emptyList();
     }
 
-    public List<Instrument> getInstrumentsFromBy(int begin, int end)
-            throws SQLException {
+    @Override
+    public List<Instrument> getInstrumentsFromBy(int begin, int end) {
         @Language("MySQL") String queryString = "SELECT * FROM instrument_list ORDER BY title limit ? offset ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             preparedStatement.setInt(2, begin);
@@ -76,8 +74,6 @@ public class InstrumentDaoImpl implements InstrumentDao {
             return instruments;
         } catch (SQLException e) {
             logger.log(Level.WARNING, e.getMessage());
-        } finally {
-            close();
         }
         return Collections.emptyList();
     }
@@ -107,8 +103,6 @@ public class InstrumentDaoImpl implements InstrumentDao {
         } catch (SQLException e) {
             logger.log(Level.WARNING, e.getMessage());
             connection.rollback();
-        } finally {
-            close();
         }
         return Optional.empty();
     }
@@ -128,8 +122,6 @@ public class InstrumentDaoImpl implements InstrumentDao {
         } catch (SQLException e) {
             connection.rollback();
             logger.warning(e.getMessage());
-        } finally {
-            close();
         }
         return Optional.empty();
     }
@@ -141,20 +133,12 @@ public class InstrumentDaoImpl implements InstrumentDao {
             preparedStatement.setLong(1, id);
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
-                try (StatusDao statusDao = JDBCDaoFactory.getInstance().createStatusDao()) {
-                    Status status = statusDao.findById(Long.parseLong(resultSet.getString("status_id"))).orElseThrow();
-                    InstrumentMapper instrumentMapper = new InstrumentMapper();
-                    Instrument instrument = instrumentMapper.extractFromResultSet(resultSet);
-                    instrument.setStatus(status);
-                    return Optional.of(instrument);
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
+                InstrumentMapper instrumentMapper = new InstrumentMapper();
+                Instrument instrument = instrumentMapper.extractFromResultSet(resultSet);
+                return Optional.of(instrument);
             }
         } catch (SQLException e) {
             logger.warning(e.getMessage());
-        } finally {
-            close();
         }
         return Optional.empty();
     }
@@ -173,20 +157,20 @@ public class InstrumentDaoImpl implements InstrumentDao {
         } catch (SQLException e) {
             connection.rollback();
             logger.warning(e.getMessage());
-        } finally {
-            close();
         }
-
     }
 
     @Override
     public void delete(Long id) throws SQLException {
-
-    }
-
-    @Override
-    public void close() {
-
+        @Language("MySQL") String queryString = "DELETE FROM instrument_list WHERE instrument_id = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            preparedStatement.setLong(1, id);
+            preparedStatement.executeUpdate();
+            connection.commit();
+        } catch (SQLException e) {
+            connection.rollback();
+            logger.warning(e.getMessage());
+        }
     }
 }
 

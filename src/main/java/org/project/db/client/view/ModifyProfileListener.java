@@ -13,13 +13,13 @@ import java.io.ObjectOutputStream;
 import java.util.logging.Logger;
 
 public class ModifyProfileListener implements ActionListener {
+    private static final Logger logger = Logger.getLogger(ModifyProfileListener.class.getName());
     private final DatabaseClient databaseClient;
     private final ObjectOutputStream toServer;
     private final ObjectInputStream fromServer;
 
-    private static final Logger logger = Logger.getLogger(ModifyProfileListener.class.getName());
-
-    public ModifyProfileListener(DatabaseClient databaseClient, ObjectOutputStream toServer, ObjectInputStream fromServer) {
+    public ModifyProfileListener(DatabaseClient databaseClient, ObjectOutputStream toServer,
+                                 ObjectInputStream fromServer) {
         this.databaseClient = databaseClient;
         this.toServer = toServer;
         this.fromServer = fromServer;
@@ -54,7 +54,7 @@ public class ModifyProfileListener implements ActionListener {
         infoPanel1.add(btChangeEmail1);
         mainPanel1.add(infoPanel1, BorderLayout.CENTER);
         JButton btBack1 = new JButton(MainConstants.BACK);
-        btBack1.addActionListener((event1) -> databaseClient.loggedInUser());
+        btBack1.addActionListener(event1 -> databaseClient.loggedInUser());
         mainPanel1.add(btBack1, BorderLayout.SOUTH);
         databaseClient.add(mainPanel1);
         databaseClient.setSize(400, 150);
@@ -93,7 +93,7 @@ public class ModifyProfileListener implements ActionListener {
         }
     }
 
-    private class ActionLastName implements ActionListener{
+    private class ActionLastName implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             databaseClient.getContentPane().removeAll();
@@ -109,7 +109,7 @@ public class ModifyProfileListener implements ActionListener {
         }
     }
 
-    private class ActionChangePhone implements ActionListener{
+    private class ActionChangePhone implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             databaseClient.getContentPane().removeAll();
@@ -125,7 +125,7 @@ public class ModifyProfileListener implements ActionListener {
         }
     }
 
-    private class ActionChangePassword implements ActionListener{
+    private class ActionChangePassword implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             databaseClient.getContentPane().removeAll();

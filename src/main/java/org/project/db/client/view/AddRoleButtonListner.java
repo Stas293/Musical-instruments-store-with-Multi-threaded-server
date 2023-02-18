@@ -16,8 +16,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class AddRoleButtonListner implements ActionListener {
-    private final DatabaseClient databaseClient;
     private static final Logger logger = Logger.getLogger(AddRoleButtonListner.class.getName());
+    private final DatabaseClient databaseClient;
     private final ObjectOutputStream toServer;
     private final ObjectInputStream fromServer;
     private final String login;
@@ -33,7 +33,8 @@ public class AddRoleButtonListner implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         try {
             databaseClient.getContentPane().removeAll();
-            SendUserAndUpdateRole sendUserAndUpdateRole = new SendUserAndUpdateRole(databaseClient, toServer, fromServer, login);
+            SendUserAndUpdateRole sendUserAndUpdateRole =
+                    new SendUserAndUpdateRole(databaseClient, toServer, fromServer, login);
             List<Role> roles = sendUserAndUpdateRole.getRoles();
             JPanel mainPanel = new JPanel();
             mainPanel.setLayout(new BorderLayout());

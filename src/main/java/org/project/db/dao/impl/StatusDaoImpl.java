@@ -49,14 +49,11 @@ public class StatusDaoImpl implements StatusDao {
             }
         } catch (SQLException e) {
             logger.warning(e.getMessage());
-        } finally {
-            close();
         }
         return Optional.empty();
     }
 
-    public Optional<Status> getStatusByName(@NotNull String name)
-            throws SQLException {
+    public Optional<Status> getStatusByName(@NotNull String name) {
         @Language("MySQL") String queryString = "select * from status where name = ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             preparedStatement.setString(1, name);
@@ -67,14 +64,11 @@ public class StatusDaoImpl implements StatusDao {
             }
         } catch (SQLException e) {
             logger.warning(e.getMessage());
-        } finally {
-            close();
         }
         return Optional.empty();
     }
 
-    public List<Status> getAllStatuses()
-            throws SQLException {
+    public List<Status> getAllStatuses() {
         @Language("MySQL") String queryString = "select * from status";
         List<Status> statuses = new ArrayList<>();
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
@@ -85,14 +79,11 @@ public class StatusDaoImpl implements StatusDao {
             }
         } catch (SQLException e) {
             logger.warning(e.getMessage());
-        } finally {
-            close();
         }
         return statuses;
     }
 
-    public void update(@NotNull Status status)
-            throws SQLException {
+    public void update(@NotNull Status status) {
         @Language("MySQL") String queryString = "update status set code = ?, name = ?, closed = ? where status_id = ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             preparedStatement.setString(1, status.getCode());
@@ -102,48 +93,83 @@ public class StatusDaoImpl implements StatusDao {
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             logger.warning(e.getMessage());
-        } finally {
-            close();
         }
     }
 
     @Override
-    public void delete(Long id) throws SQLException {
+    public void delete(Long id) {
         try (PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM status WHERE status_id = ?")) {
             preparedStatement.setLong(1, id);
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             logger.warning(e.getMessage());
-        } finally {
-            close();
         }
     }
 
-    @Override
-    public void close() {
-        try {
-            connection.close();
-        } catch (SQLException e) {
-            logger.warning(e.getMessage());
-        }
-    }
-
-    public Status findNextStatus(@NotNull Status status)
-            throws SQLException {
+    public Optional<Status> findNextStatus(@NotNull Status status) {
         @Language("MySQL") String queryString = "SELECT status.* FROM next_status join `status` ON " +
                 "next_status.next_status_id = status.status_id where next_status.status_id = ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             preparedStatement.setLong(1, status.getId());
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
-                    return new StatusMapper().extractFromResultSet(resultSet);
+                    return Optional.of(new StatusMapper().extractFromResultSet(resultSet));
                 }
             }
         } catch (SQLException e) {
             logger.warning(e.getMessage());
-        } finally {
-            close();
         }
-        return getStatusByName("Arrived").orElseThrow(() -> new SQLException("Status not found"));
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<Status> getStatusOfInstrument(long instrumentId) {
+        @Language("MySQL") String queryString = "SELECT status.* FROM instrument_list join `status` ON " +
+                "instrument_list.status_id = status.status_id where instrument_list.instrument_id = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            preparedStatement.setLong(1, instrumentId);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return Optional.of(new StatusMapper().extractFromResultSet(resultSet));
+                }
+            }
+        } catch (SQLException e) {
+            logger.warning(e.getMessage());
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<Status> getOrderStatus(Long id) {
+        @Language("MySQL") String queryString = "SELECT status.* FROM `order_list` join `status` ON " +
+                "`order_list`.status_id = status.status_id where `order_list`.order_id = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            preparedStatement.setLong(1, id);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return Optional.of(new StatusMapper().extractFromResultSet(resultSet));
+                }
+            }
+        } catch (SQLException e) {
+            logger.warning(e.getMessage());
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<Status> getHistoryStatus(Long id) {
+        @Language("MySQL") String queryString = "SELECT status.* FROM order_history join `status` ON " +
+                "order_history.status_id = status.status_id where order_history.history_id = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+            preparedStatement.setLong(1, id);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return Optional.of(new StatusMapper().extractFromResultSet(resultSet));
+                }
+            }
+        } catch (SQLException e) {
+            logger.warning(e.getMessage());
+        }
+        return Optional.empty();
     }
 }

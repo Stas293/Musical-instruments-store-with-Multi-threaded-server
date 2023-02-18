@@ -16,13 +16,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SendUserAndUpdateRole {
+    private static final Logger logger = LogManager.getLogger(SendUserAndUpdateRole.class);
     private final DatabaseClient databaseClient;
     private final ObjectOutputStream toServer;
     private final ObjectInputStream fromServer;
     private final String login;
-    private static final Logger logger = LogManager.getLogger(SendUserAndUpdateRole.class);
 
-    public SendUserAndUpdateRole(DatabaseClient databaseClient, ObjectOutputStream toServer, ObjectInputStream fromServer, String login) {
+    public SendUserAndUpdateRole(DatabaseClient databaseClient, ObjectOutputStream toServer,
+                                 ObjectInputStream fromServer, String login) {
         this.databaseClient = databaseClient;
         this.toServer = toServer;
         this.fromServer = fromServer;

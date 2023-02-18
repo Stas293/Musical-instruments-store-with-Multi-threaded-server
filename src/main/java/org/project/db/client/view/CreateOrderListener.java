@@ -21,11 +21,10 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class CreateOrderListener implements ActionListener {
+    private static final Logger logger = Logger.getLogger(CreateOrderListener.class.getName());
     private final DatabaseClient databaseClient;
     private final ObjectOutputStream toServer;
     private final ObjectInputStream fromServer;
-
-    private static final Logger logger = Logger.getLogger(CreateOrderListener.class.getName());
 
     public CreateOrderListener(DatabaseClient databaseClient, ObjectOutputStream toServer, ObjectInputStream fromServer) {
         this.databaseClient = databaseClient;
@@ -33,45 +32,7 @@ public class CreateOrderListener implements ActionListener {
         this.fromServer = fromServer;
     }
 
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        try {
-            databaseClient.getContentPane().removeAll();
-            JPanel mainPanel = new JPanel();
-            mainPanel.setLayout(new BorderLayout());
-            JPanel infoPanel = new JPanel();
-            toServer.writeObject("getAllInstruments");
-            ArrayList<Instrument> originalInstruments = (ArrayList<Instrument>) fromServer.readObject();
-            ArrayList<Instrument> instruments = originalInstruments.stream().filter(originalInstrument ->
-                    originalInstrument.getStatus().getName().equals("Available")).collect(Collectors.toCollection(ArrayList::new));
-            infoPanel.setLayout(new GridLayout(instruments.size() + 1, 6 + 1));
-            addTableLabels(infoPanel);
-            JLabel lbQuantity = new JLabel("quantity");
-            infoPanel.add(lbQuantity);
-            JComboBox<Integer> cbQuantity = new JComboBox<>();
-            IntStream.rangeClosed(0, 10).forEachOrdered(cbQuantity::addItem);
-            JComboBox[] cbQuantitys = new JComboBox[instruments.size()];
-            addInstrumentsToTable(infoPanel, instruments, cbQuantitys);
-            JScrollPane scrollPanel = new JScrollPane(infoPanel);
-            ArrayList<InstrumentOrder> instrumentOrders = new ArrayList<>();
-            JPanel controlPanel = new JPanel();
-            JButton btMakeOrder = new JButton("Make order");
-            btMakeOrder.addActionListener(new AddInstrumentsToOrder(instruments, cbQuantitys, instrumentOrders, fromServer, toServer, databaseClient));
-            mainPanel.add(scrollPanel, BorderLayout.CENTER);
-            JButton btBack = new JButton(MainConstants.BACK);
-            btBack.addActionListener(event -> databaseClient.loggedInUser());
-            controlPanel.add(btBack);
-            controlPanel.add(btMakeOrder);
-            mainPanel.add(controlPanel, BorderLayout.SOUTH);
-            databaseClient.add(mainPanel);
-            databaseClient.setSize(600, 300);
-            databaseClient.repaint();
-        } catch (IOException | ClassNotFoundException e1) {
-            logger.log(Level.WARNING, "Exception", e1);
-        }
-    }
-
-    private static void addInstrumentsToTable(JPanel infoPanel, ArrayList<Instrument> instruments, JComboBox[] cbQuantitys) {
+    private static void addInstrumentsToTable(JPanel infoPanel, java.util.List<Instrument> instruments, JComboBox[] cbQuantitys) {
         for (int i = 0; i < instruments.size(); i++) {
             JLabel lbId1 = new JLabel(instruments.get(i).getId() + "");
             infoPanel.add(lbId1);
@@ -125,6 +86,55 @@ public class CreateOrderListener implements ActionListener {
         JLabel lbDescription = new JLabel(LabelConstants.DESCRIPTION);
         infoPanel.add(lbDescription);
         lbDescription.setPreferredSize(new Dimension(1, 1));
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        try {
+            databaseClient.getContentPane().removeAll();
+            JPanel mainPanel = new JPanel();
+            mainPanel.setLayout(new BorderLayout());
+            JPanel infoPanel = new JPanel();
+            toServer.writeObject("getAllInstruments");
+            java.util.List<Instrument> originalInstruments = (java.util.List<Instrument>) fromServer.readObject();
+            java.util.List<Instrument> instruments = originalInstruments.stream()
+                    .filter(originalInstrument ->
+                            originalInstrument.getStatus()
+                                    .getName()
+                                    .equals("Available"))
+                    .collect(Collectors.toCollection(ArrayList::new));
+            infoPanel.setLayout(new GridLayout(instruments.size() + 1, 6 + 1));
+            addTableLabels(infoPanel);
+            JLabel lbQuantity = new JLabel("quantity");
+            infoPanel.add(lbQuantity);
+            JComboBox<Integer> cbQuantity = new JComboBox<>();
+            IntStream.rangeClosed(0, 10).forEachOrdered(cbQuantity::addItem);
+            JComboBox[] cbQuantitys = new JComboBox[instruments.size()];
+            addInstrumentsToTable(infoPanel, instruments, cbQuantitys);
+            JScrollPane scrollPanel = new JScrollPane(infoPanel);
+            ArrayList<InstrumentOrder> instrumentOrders = new ArrayList<>();
+            JPanel controlPanel = new JPanel();
+            JButton btMakeOrder = new JButton("Make order");
+            btMakeOrder.addActionListener(
+                    new AddInstrumentsToOrder(
+                            instruments,
+                            cbQuantitys,
+                            instrumentOrders,
+                            fromServer,
+                            toServer,
+                            databaseClient));
+            mainPanel.add(scrollPanel, BorderLayout.CENTER);
+            JButton btBack = new JButton(MainConstants.BACK);
+            btBack.addActionListener(event -> databaseClient.loggedInUser());
+            controlPanel.add(btBack);
+            controlPanel.add(btMakeOrder);
+            mainPanel.add(controlPanel, BorderLayout.SOUTH);
+            databaseClient.add(mainPanel);
+            databaseClient.setSize(600, 300);
+            databaseClient.repaint();
+        } catch (IOException | ClassNotFoundException e1) {
+            logger.log(Level.WARNING, "Exception", e1);
+        }
     }
 
 }

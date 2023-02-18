@@ -10,16 +10,14 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class ShowHistoryOrdersListener implements ActionListener {
+    private static final Logger logger = Logger.getLogger(ShowHistoryOrdersListener.class.getName());
     private final DatabaseClient databaseClient;
     private final ObjectInputStream fromServer;
     private final ObjectOutputStream toServer;
-
-    private static final Logger logger = Logger.getLogger(ShowHistoryOrdersListener.class.getName());
 
     public ShowHistoryOrdersListener(DatabaseClient databaseClient, ObjectInputStream fromServer, ObjectOutputStream toServer) {
         this.databaseClient = databaseClient;
@@ -27,10 +25,35 @@ public class ShowHistoryOrdersListener implements ActionListener {
         this.toServer = toServer;
     }
 
+    private static void addOrderHistoryToPanel(JPanel infoPanel, OrderHistory orderHistory) {
+        idTitle(infoPanel, orderHistory.getId(), orderHistory.getTitle());
+        JLabel lbUserLogin = new JLabel(orderHistory.getUser().getLogin());
+        infoPanel.add(lbUserLogin);
+        lbUserLogin.setPreferredSize(new Dimension(1, 1));
+        JLabel lbDateCreated = new JLabel(orderHistory.getDateCreated() + "");
+        infoPanel.add(lbDateCreated);
+        lbDateCreated.setPreferredSize(new Dimension(1, 1));
+        JLabel lbTotalSum = new JLabel(orderHistory.getTotalSum() + "");
+        infoPanel.add(lbTotalSum);
+        lbTotalSum.setPreferredSize(new Dimension(1, 1));
+        JLabel lbStatus = new JLabel(orderHistory.getStatus().getName());
+        infoPanel.add(lbStatus);
+        lbStatus.setPreferredSize(new Dimension(1, 1));
+    }
+
+    static void idTitle(JPanel infoPanel, Long id, String title) {
+        JLabel lbOrderHistoryId = new JLabel(id + "");
+        infoPanel.add(lbOrderHistoryId);
+        lbOrderHistoryId.setPreferredSize(new Dimension(1, 1));
+        JLabel lbOrderHistoryTitle = new JLabel(title);
+        infoPanel.add(lbOrderHistoryTitle);
+        lbOrderHistoryTitle.setPreferredSize(new Dimension(1, 1));
+    }
+
     @Override
     public void actionPerformed(ActionEvent e) {
         try {
-            ArrayList<OrderHistory> ordersHistory = getOrderHistories();
+            java.util.List<OrderHistory> ordersHistory = getOrderHistories();
             databaseClient.getContentPane().removeAll();
             JPanel mainPanel = new JPanel();
             mainPanel.setLayout(new BorderLayout());
@@ -59,35 +82,9 @@ public class ShowHistoryOrdersListener implements ActionListener {
         }
     }
 
-    private ArrayList<OrderHistory> getOrderHistories() throws IOException, ClassNotFoundException {
+    private java.util.List<OrderHistory> getOrderHistories() throws IOException, ClassNotFoundException {
         toServer.writeObject("getAllHistoryOrdersForUser");
         toServer.writeObject(databaseClient.getUserDto());
-        ArrayList<OrderHistory> ordersHistory = (ArrayList<OrderHistory>) fromServer.readObject();
-        return ordersHistory;
-    }
-
-    private static void addOrderHistoryToPanel(JPanel infoPanel, OrderHistory orderHistory) {
-        idTitle(infoPanel, orderHistory.getId(), orderHistory.getTitle());
-        JLabel lbUserLogin = new JLabel(orderHistory.getUser().getLogin());
-        infoPanel.add(lbUserLogin);
-        lbUserLogin.setPreferredSize(new Dimension(1, 1));
-        JLabel lbDateCreated = new JLabel(orderHistory.getDateCreated() + "");
-        infoPanel.add(lbDateCreated);
-        lbDateCreated.setPreferredSize(new Dimension(1, 1));
-        JLabel lbTotalSum = new JLabel(orderHistory.getTotalSum() + "");
-        infoPanel.add(lbTotalSum);
-        lbTotalSum.setPreferredSize(new Dimension(1, 1));
-        JLabel lbStatus = new JLabel(orderHistory.getStatus().getName());
-        infoPanel.add(lbStatus);
-        lbStatus.setPreferredSize(new Dimension(1, 1));
-    }
-
-    static void idTitle(JPanel infoPanel, Long id, String title) {
-        JLabel lbOrderHistoryId = new JLabel(id + "");
-        infoPanel.add(lbOrderHistoryId);
-        lbOrderHistoryId.setPreferredSize(new Dimension(1, 1));
-        JLabel lbOrderHistoryTitle = new JLabel(title);
-        infoPanel.add(lbOrderHistoryTitle);
-        lbOrderHistoryTitle.setPreferredSize(new Dimension(1, 1));
+        return (java.util.List<OrderHistory>) fromServer.readObject();
     }
 }

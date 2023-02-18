@@ -10,14 +10,13 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.ArrayList;
 import java.util.logging.Logger;
 
 public class AddRoleForUserListener implements ActionListener {
+    private static final Logger logger = Logger.getLogger(AddRoleForUserListener.class.getName());
     private final DatabaseClient databaseClient;
     private final ObjectOutputStream toServer;
     private final ObjectInputStream fromServer;
-    private static final Logger logger = Logger.getLogger(AddRoleForUserListener.class.getName());
 
     public AddRoleForUserListener(DatabaseClient databaseClient, ObjectOutputStream toServer, ObjectInputStream fromServer) {
         this.databaseClient = databaseClient;
@@ -31,7 +30,7 @@ public class AddRoleForUserListener implements ActionListener {
             databaseClient.getContentPane().removeAll();
             toServer.writeObject("allUserDtos");
             Object object = fromServer.readObject();
-            ArrayList<UserDto> users = (ArrayList<UserDto>) object;
+            java.util.List<UserDto> users = (java.util.List<UserDto>) object;
             JPanel mainPanel = new JPanel();
             mainPanel.setLayout(new BorderLayout());
             JPanel infoPanel = new JPanel();
@@ -39,7 +38,12 @@ public class AddRoleForUserListener implements ActionListener {
             for (UserDto userDto : users) {
                 JButton btAddRole = new JButton("Add role for " + userDto.login());
                 infoPanel.add(btAddRole);
-                btAddRole.addActionListener(new AddRoleButtonListner(databaseClient, toServer, fromServer, btAddRole.getText().split(" ")[3]));
+                btAddRole.addActionListener(
+                        new AddRoleButtonListner(
+                                databaseClient,
+                                toServer,
+                                fromServer,
+                                btAddRole.getText().split(" ")[3]));
             }
             EnableUserListener.addScroller(users, mainPanel, infoPanel, databaseClient);
         } catch (IOException | ClassNotFoundException ex) {

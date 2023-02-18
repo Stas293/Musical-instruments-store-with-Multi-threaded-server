@@ -14,9 +14,8 @@ import java.io.ObjectOutputStream;
 import java.util.logging.Logger;
 
 public class ShowInstrumentByTitleListener implements ActionListener {
-    private final DatabaseClient databaseClient;
-
     private static final Logger logger = Logger.getLogger(ShowInstrumentByTitleListener.class.getName());
+    private final DatabaseClient databaseClient;
     private final ObjectInputStream fromServer;
     private final ObjectOutputStream toServer;
 
@@ -24,27 +23,6 @@ public class ShowInstrumentByTitleListener implements ActionListener {
         this.databaseClient = databaseClient;
         this.fromServer = fromServer;
         this.toServer = toServer;
-    }
-
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        databaseClient.getContentPane().removeAll();
-        JPanel mainPanel = new JPanel();
-        mainPanel.setLayout(new BorderLayout());
-        JPanel controlPanel = new JPanel();
-        JTextField tfTitle = new JTextField();
-        controlPanel.add(tfTitle);
-        tfTitle.setPreferredSize(new Dimension(100, 30));
-        JButton btSearch = new JButton("Search");
-        controlPanel.add(btSearch);
-        JButton btBack = new JButton(MainConstants.BACK);
-        btSearch.addActionListener(new ActionSearch(mainPanel, controlPanel, tfTitle, btBack, toServer, fromServer, databaseClient));
-        btBack.addActionListener((event) -> databaseClient.loggedInUser());
-        mainPanel.add(controlPanel, BorderLayout.NORTH);
-        mainPanel.add(btBack, BorderLayout.SOUTH);
-        databaseClient.add(mainPanel);
-        databaseClient.setSize(400, 200);
-        databaseClient.repaint();
     }
 
     public static void addLabelConstants(JPanel infoPanel) {
@@ -70,6 +48,35 @@ public class ShowInstrumentByTitleListener implements ActionListener {
         JLabel lbDateUpdated1 = new JLabel(instrument.getDateUpdated() + "");
         infoPanel.add(lbDateUpdated1);
         lbDateUpdated1.setPreferredSize(new Dimension(1, 1));
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        databaseClient.getContentPane().removeAll();
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new BorderLayout());
+        JPanel controlPanel = new JPanel();
+        JTextField tfTitle = new JTextField();
+        controlPanel.add(tfTitle);
+        tfTitle.setPreferredSize(new Dimension(100, 30));
+        JButton btSearch = new JButton("Search");
+        controlPanel.add(btSearch);
+        JButton btBack = new JButton(MainConstants.BACK);
+        btSearch.addActionListener(
+                new ActionSearch(
+                        mainPanel,
+                        controlPanel,
+                        tfTitle,
+                        btBack,
+                        toServer,
+                        fromServer,
+                        databaseClient));
+        btBack.addActionListener(event -> databaseClient.loggedInUser());
+        mainPanel.add(controlPanel, BorderLayout.NORTH);
+        mainPanel.add(btBack, BorderLayout.SOUTH);
+        databaseClient.add(mainPanel);
+        databaseClient.setSize(400, 200);
+        databaseClient.repaint();
     }
 
 }

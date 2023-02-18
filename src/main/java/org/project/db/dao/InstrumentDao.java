@@ -12,6 +12,8 @@ public interface InstrumentDao extends GenericDao<Instrument> {
 
     List<Instrument> getAllInstruments();
 
+    List<Instrument> getInstrumentsFromBy(int begin, int end);
+
     Optional<Instrument> findByTitle(String title);
 
     Optional<Instrument> changeStatusOfInstrument(Instrument instrumentToChangeStatus, Status statusToUse) throws SQLException;

@@ -36,13 +36,20 @@ public class LoginListener implements ActionListener {
         databaseClient.setTfPassword(new JTextField(20));
         infoPanel.add(databaseClient.getTfPassword());
         JButton btLogin = new JButton(MainConstants.LOGIN);
-        JButton btBack = databaseClient.getStartView().registerMainPanel(infoPanel, mainPanel, btLogin);
+        JButton btBack = databaseClient.getStartView()
+                .registerMainPanel(infoPanel, mainPanel, btLogin);
         databaseClient.setSize(400, 175);
         databaseClient.repaint();
         btBack.addActionListener(event -> {
             databaseClient.getContentPane().removeAll();
             databaseClient.getStartView().startView();
         });
-        btLogin.addActionListener(new LoginButtonListener(databaseClient, toServer, fromServer, databaseClient.getTfLogin(), databaseClient.getTfPassword()));
+        btLogin.addActionListener(
+                new LoginButtonListener(
+                        databaseClient,
+                        toServer,
+                        fromServer,
+                        databaseClient.getTfLogin(),
+                        databaseClient.getTfPassword()));
     }
 }

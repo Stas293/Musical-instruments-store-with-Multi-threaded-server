@@ -8,14 +8,13 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 public class RegisterListener implements ActionListener {
     private final DatabaseClient databaseClient;
     private final ObjectOutputStream toServer;
 
-    public RegisterListener(DatabaseClient databaseClient, ObjectOutputStream toServer, ObjectInputStream fromServer) {
+    public RegisterListener(DatabaseClient databaseClient, ObjectOutputStream toServer) {
         this.databaseClient = databaseClient;
         this.toServer = toServer;
     }

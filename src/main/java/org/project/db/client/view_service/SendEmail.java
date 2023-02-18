@@ -18,7 +18,8 @@ public class SendEmail implements ActionListener {
     private final ObjectInputStream fromServer;
     private final DatabaseClient databaseClient;
 
-    public SendEmail(JTextField tfEmail, ObjectOutputStream toServer, ObjectInputStream fromServer, DatabaseClient databaseClient) {
+    public SendEmail(JTextField tfEmail, ObjectOutputStream toServer, ObjectInputStream fromServer,
+                     DatabaseClient databaseClient) {
         this.tfEmail = tfEmail;
         this.toServer = toServer;
         this.fromServer = fromServer;

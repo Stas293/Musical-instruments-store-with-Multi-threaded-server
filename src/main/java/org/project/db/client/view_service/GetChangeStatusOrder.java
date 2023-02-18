@@ -9,9 +9,9 @@ import java.io.ObjectOutputStream;
 import java.util.logging.Logger;
 
 public class GetChangeStatusOrder implements ActionListener {
+    private static final Logger logger = Logger.getLogger(GetChangeStatusOrder.class.getName());
     private final JButton btChangeStatus;
     private final ObjectOutputStream toServer;
-    private static final Logger logger = Logger.getLogger(GetChangeStatusOrder.class.getName());
 
     public GetChangeStatusOrder(JButton btChangeStatus, ObjectInputStream fromServer, ObjectOutputStream toServer) {
         this.btChangeStatus = btChangeStatus;

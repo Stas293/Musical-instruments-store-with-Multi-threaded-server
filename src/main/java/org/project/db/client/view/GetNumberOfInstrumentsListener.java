@@ -14,13 +14,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class GetNumberOfInstrumentsListener implements ActionListener {
+    private static final Logger logger = Logger.getLogger(GetNumberOfInstrumentsListener.class.getName());
     private final DatabaseClient databaseClient;
     private final ObjectOutputStream toServer;
     private final ObjectInputStream fromServer;
 
-    private static final Logger logger = Logger.getLogger(GetNumberOfInstrumentsListener.class.getName());
-
-    public GetNumberOfInstrumentsListener(DatabaseClient databaseClient, ObjectOutputStream toServer, ObjectInputStream fromServer) {
+    public GetNumberOfInstrumentsListener(DatabaseClient databaseClient, ObjectOutputStream toServer,
+                                          ObjectInputStream fromServer) {
         this.databaseClient = databaseClient;
         this.toServer = toServer;
         this.fromServer = fromServer;

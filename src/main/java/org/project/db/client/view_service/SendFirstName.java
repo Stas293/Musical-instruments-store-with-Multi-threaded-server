@@ -12,13 +12,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class SendFirstName implements ActionListener {
-    private final JTextField tfFirstName;
     private static final Logger logger = Logger.getLogger(SendFirstName.class.getName());
+    private final JTextField tfFirstName;
     private final ObjectInputStream fromServer;
     private final ObjectOutputStream toServer;
     private final DatabaseClient databaseClient;
 
-    public SendFirstName(JTextField tfFirstName, ObjectInputStream fromServer, ObjectOutputStream toServer, DatabaseClient databaseClient) {
+    public SendFirstName(JTextField tfFirstName, ObjectInputStream fromServer, ObjectOutputStream toServer,
+                         DatabaseClient databaseClient) {
         this.tfFirstName = tfFirstName;
         this.fromServer = fromServer;
         this.toServer = toServer;

@@ -1,18 +1,21 @@
-package org.project.db.server_controller.command;
+package org.project.db.server_controller.command_impl;
 
-import org.project.db.dao.RoleDao;
-import org.project.db.dao.UserDao;
-import org.project.db.dao.impl.JDBCDaoFactory;
-import org.project.db.dto.UserDto;
 import org.project.db.dto.UserRoleDto;
+import org.project.db.server_controller.Command;
+import org.project.db.service.RoleService;
+import org.project.db.service.UserService;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.logging.Logger;
 
 public class RoleForUser implements Command {
+    private static final Logger logger = Logger.getLogger(RoleForUser.class.getName());
     private final ObjectInputStream inputObjectFromClient;
     private final ObjectOutputStream outputObjectToClient;
+    private final RoleService roleService = new RoleService();
+    private final UserService userService = new UserService();
 
     public RoleForUser(ObjectInputStream inputObjectFromClient, ObjectOutputStream outputObjectToClient) {
         this.inputObjectFromClient = inputObjectFromClient;
@@ -21,14 +24,10 @@ public class RoleForUser implements Command {
 
     @Override
     public void execute() throws IOException, ClassNotFoundException {
+        logger.info("roleForUser");
         Object object3 = inputObjectFromClient.readObject();
         UserRoleDto userRoleDto = (UserRoleDto) object3;
-        try (RoleDao roleDao = JDBCDaoFactory.getInstance().createRoleDao();
-             UserDao userDao = JDBCDaoFactory.getInstance().createUserDao()) {
-            roleDao.insertRoleForUser(new UserDto(userRoleDto.login()), userRoleDto.roleName());
-            outputObjectToClient.writeObject(userDao.findByLogin(userRoleDto.login()));
-        } catch (Exception e) {
-            outputObjectToClient.writeObject("Error");
-        }
+        roleService.insertRoleForUser(userRoleDto);
+        outputObjectToClient.writeObject(userService.findByLogin(userRoleDto.login()));
     }
 }

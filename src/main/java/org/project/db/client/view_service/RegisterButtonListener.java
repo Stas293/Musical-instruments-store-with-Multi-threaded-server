@@ -13,10 +13,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class RegisterButtonListener implements ActionListener {
+    private static final Logger logger = Logger.getLogger(RegisterButtonListener.class.getName());
     private final DatabaseClient databaseClient;
     private final ObjectOutputStream toServer;
-
-    private static final Logger logger = Logger.getLogger(RegisterButtonListener.class.getName());
     private final JTextField tfLogin;
     private final JTextField tfEmail;
     private final JTextField tfFirstName;
@@ -24,7 +23,10 @@ public class RegisterButtonListener implements ActionListener {
     private final JTextField tfPhone;
     private final JTextField tfPassword;
 
-    public RegisterButtonListener(DatabaseClient databaseClient, ObjectOutputStream toServer, JTextField tfLogin, JTextField tfEmail, JTextField tfFirstName, JTextField tfLastName, JTextField tfPhone, JTextField tfPassword) {
+    public RegisterButtonListener(DatabaseClient databaseClient, ObjectOutputStream toServer,
+                                  JTextField tfLogin, JTextField tfEmail,
+                                  JTextField tfFirstName, JTextField tfLastName,
+                                  JTextField tfPhone, JTextField tfPassword) {
         this.databaseClient = databaseClient;
         this.toServer = toServer;
         this.tfLogin = tfLogin;

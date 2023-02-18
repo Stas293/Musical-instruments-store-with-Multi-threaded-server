@@ -11,5 +11,11 @@ public interface StatusDao extends GenericDao<Status> {
 
     List<Status> getAllStatuses() throws SQLException;
 
-    Status findNextStatus(Status status) throws SQLException;
+    Optional<Status> findNextStatus(Status status) throws SQLException;
+
+    Optional<Status> getStatusOfInstrument(long instrumentId);
+
+    Optional<Status> getOrderStatus(Long id);
+
+    Optional<Status> getHistoryStatus(Long id);
 }

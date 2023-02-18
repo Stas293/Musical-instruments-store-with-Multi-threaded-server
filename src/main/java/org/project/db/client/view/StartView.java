@@ -14,15 +14,29 @@ public class StartView implements Serializable {
     private final DatabaseClient databaseClient;
     private final JButton register = new JButton(MainConstants.REGISTER);
     private final JButton login = new JButton(MainConstants.LOGIN);
-    private JButton openButton;
-    private JButton closeButton;
     private final ObjectOutputStream toServer;
     private final ObjectInputStream fromServer;
+    private JButton openButton;
+    private JButton closeButton;
 
     public StartView(DatabaseClient databaseClient, ObjectOutputStream toServer, ObjectInputStream fromServer) {
         this.databaseClient = databaseClient;
         this.toServer = toServer;
         this.fromServer = fromServer;
+    }
+
+    public static int countRows(List<String> userRolesNames, int numberOfRows) {
+        if (userRolesNames.contains("user")) {
+            numberOfRows += 6;
+        }
+        if (userRolesNames.contains("seller")) {
+            numberOfRows += 7;
+        }
+        if (userRolesNames.contains("admin")) {
+            numberOfRows += 3;
+        }
+        numberOfRows += 2;
+        return numberOfRows;
     }
 
     public JButton getRegister() {
@@ -78,20 +92,6 @@ public class StartView implements Serializable {
         }
     }
 
-    public static int countRows(List<String> userRolesNames, int numberOfRows) {
-        if (userRolesNames.contains("user")) {
-            numberOfRows += 6;
-        }
-        if (userRolesNames.contains("seller")) {
-            numberOfRows += 7;
-        }
-        if (userRolesNames.contains("admin")) {
-            numberOfRows += 3;
-        }
-        numberOfRows += 2;
-        return numberOfRows;
-    }
-
     public void addAdminGUI(JPanel choicePanel) {
         JButton disableUser = new JButton("Disable user");
         choicePanel.add(disableUser);
@@ -116,7 +116,8 @@ public class StartView implements Serializable {
         changeStatusOfOrder.addActionListener(new ChangeStatusOfOrderListener(databaseClient, toServer, fromServer));
         JButton changeStatusOfInstrument = new JButton("Change status of instrument");
         choicePanel.add(changeStatusOfInstrument);
-        changeStatusOfInstrument.addActionListener(new ChangeStatusOfInstrumentListener(databaseClient, toServer, fromServer));
+        changeStatusOfInstrument.addActionListener(
+                new ChangeStatusOfInstrumentListener(databaseClient, toServer, fromServer));
         JButton getStatuses = new JButton("Get statuses");
         choicePanel.add(getStatuses);
         getStatuses.addActionListener(new GetStatusesListener(databaseClient, toServer, fromServer));

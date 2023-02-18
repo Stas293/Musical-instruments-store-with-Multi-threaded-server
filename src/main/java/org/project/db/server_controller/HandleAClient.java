@@ -1,7 +1,5 @@
 package org.project.db.server_controller;
 
-import org.project.db.server_controller.command.Command;
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -30,9 +28,9 @@ class HandleAClient implements Runnable {
             while (true) {
                 String command = (String) inputObjectFromClient.readObject();
                 try {
-                    CommandAction commandAction = CommandAction.valueOf(command.toUpperCase());
                     logger.log(Level.INFO, command);
-                    Command commandObject = ActionFactory.getCommand(commandAction, inputObjectFromClient, outputObjectToClient);
+                    Command commandObject =
+                            ActionFactory.getCommand(command, inputObjectFromClient, outputObjectToClient);
                     commandObject.execute();
                 } catch (IllegalArgumentException e) {
                     outputObjectToClient.writeObject("Error");

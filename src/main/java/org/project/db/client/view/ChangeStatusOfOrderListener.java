@@ -19,11 +19,10 @@ import java.util.logging.Logger;
 import java.util.stream.IntStream;
 
 public class ChangeStatusOfOrderListener implements ActionListener {
+    private static final Logger logger = Logger.getLogger(ChangeStatusOfOrderListener.class.getName());
     private final DatabaseClient databaseClient;
     private final ObjectOutputStream toServer;
     private final ObjectInputStream fromServer;
-
-    private static final Logger logger = Logger.getLogger(ChangeStatusOfOrderListener.class.getName());
 
     public ChangeStatusOfOrderListener(DatabaseClient databaseClient, ObjectOutputStream toServer, ObjectInputStream fromServer) {
         this.databaseClient = databaseClient;
@@ -60,7 +59,10 @@ public class ChangeStatusOfOrderListener implements ActionListener {
             JPanel mainPanel = new JPanel();
             mainPanel.setLayout(new BorderLayout());
             JPanel infoPanel = new JPanel();
-            int size = (int) orders.stream().flatMapToInt(value -> IntStream.range(0, value.getInstruments().size())).count();
+            int size = (int) orders.stream()
+                    .flatMapToInt(value ->
+                            IntStream.range(0, value.getInstruments().size()))
+                    .count();
             infoPanel.setLayout(new GridLayout(size + 1, 7));
             JLabel orderTitle = new JLabel("Order title");
             infoPanel.add(orderTitle);
@@ -101,11 +103,11 @@ public class ChangeStatusOfOrderListener implements ActionListener {
     private List<Order> getOrders() throws IOException, ClassNotFoundException {
         toServer.writeObject("allUserDtos");
         List<UserDto> users = (List<UserDto>) fromServer.readObject();
-        ArrayList<Order> orders = new ArrayList<>();
+        java.util.List<Order> orders = new ArrayList<>();
         for (UserDto user : users) {
             toServer.writeObject("getOrderByUser");
             toServer.writeObject(user);
-            orders.addAll((ArrayList<Order>) fromServer.readObject());
+            orders.addAll((java.util.List<Order>) fromServer.readObject());
         }
         return orders;
     }

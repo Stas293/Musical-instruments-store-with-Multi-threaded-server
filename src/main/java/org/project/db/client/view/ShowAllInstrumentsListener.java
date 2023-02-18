@@ -10,21 +10,27 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class ShowAllInstrumentsListener implements ActionListener {
+    private static final Logger logger = Logger.getLogger(ShowAllInstrumentsListener.class.getName());
     private final DatabaseClient databaseClient;
     private final ObjectInputStream fromServer;
     private final ObjectOutputStream toServer;
-
-    private static final Logger logger = Logger.getLogger(ShowAllInstrumentsListener.class.getName());
 
     public ShowAllInstrumentsListener(DatabaseClient databaseClient, ObjectInputStream fromServer, ObjectOutputStream toServer) {
         this.databaseClient = databaseClient;
         this.fromServer = fromServer;
         this.toServer = toServer;
+    }
+
+    private static void addInfoInstrumentToPanel(JPanel infoPanel, Instrument instrument) {
+        ShowHistoryOrdersListener.idTitle(infoPanel, instrument.getId(), instrument.getTitle());
+        JLabel lbDescription1 = new JLabel(instrument.getDescription());
+        infoPanel.add(lbDescription1);
+        lbDescription1.setMaximumSize(new Dimension(1, 1));
+        ShowInstrumentByTitleListener.addStatusPriceDateUpdatedToInfoPanel(instrument, infoPanel, lbDescription1);
     }
 
     @Override
@@ -34,7 +40,7 @@ public class ShowAllInstrumentsListener implements ActionListener {
             JPanel mainPanel = new JPanel();
             mainPanel.setLayout(new BorderLayout());
             JPanel infoPanel = new JPanel();
-            ArrayList<Instrument> instruments = getInstruments();
+            java.util.List<Instrument> instruments = getInstruments();
             infoPanel.setLayout(new GridLayout(instruments.size() + 1, 6));
             CreateOrderListener.addTableLabels(infoPanel);
             for (Instrument instrument : instruments) addInfoInstrumentToPanel(infoPanel, instrument);
@@ -46,16 +52,8 @@ public class ShowAllInstrumentsListener implements ActionListener {
         }
     }
 
-    private ArrayList<Instrument> getInstruments() throws IOException, ClassNotFoundException {
+    private java.util.List<Instrument> getInstruments() throws IOException, ClassNotFoundException {
         toServer.writeObject("getAllInstruments");
-        return (ArrayList<Instrument>) fromServer.readObject();
-    }
-
-    private static void addInfoInstrumentToPanel(JPanel infoPanel, Instrument instrument) {
-        ShowHistoryOrdersListener.idTitle(infoPanel, instrument.getId(), instrument.getTitle());
-        JLabel lbDescription1 = new JLabel(instrument.getDescription());
-        infoPanel.add(lbDescription1);
-        lbDescription1.setMaximumSize(new Dimension(1, 1));
-        ShowInstrumentByTitleListener.addStatusPriceDateUpdatedToInfoPanel(instrument, infoPanel, lbDescription1);
+        return (java.util.List<Instrument>) fromServer.readObject();
     }
 }

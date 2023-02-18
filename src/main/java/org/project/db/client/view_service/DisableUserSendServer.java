@@ -13,6 +13,7 @@ public class DisableUserSendServer implements ActionListener {
     private final JButton btDisable;
     private final ObjectInputStream fromServer;
     private final ObjectOutputStream toServer;
+
     public DisableUserSendServer(JButton btDisable, ObjectInputStream fromServer, ObjectOutputStream toServer) {
         this.btDisable = btDisable;
         this.fromServer = fromServer;

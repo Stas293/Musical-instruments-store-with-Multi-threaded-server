@@ -12,16 +12,14 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class EnableUserListener implements ActionListener {
+    private static final Logger logger = Logger.getLogger(EnableUserListener.class.getName());
     private final DatabaseClient databaseClient;
     private final ObjectOutputStream toServer;
     private final ObjectInputStream fromServer;
-
-    private static final Logger logger = Logger.getLogger(EnableUserListener.class.getName());
 
     public EnableUserListener(DatabaseClient databaseClient, ObjectOutputStream toServer, ObjectInputStream fromServer) {
         this.databaseClient = databaseClient;
@@ -29,7 +27,7 @@ public class EnableUserListener implements ActionListener {
         this.fromServer = fromServer;
     }
 
-    static void addScroller(ArrayList<UserDto> users, JPanel mainPanel, JPanel infoPanel, DatabaseClient databaseClient) {
+    static void addScroller(java.util.List<UserDto> users, JPanel mainPanel, JPanel infoPanel, DatabaseClient databaseClient) {
         changeMainPanelScroller(mainPanel, infoPanel, databaseClient);
         databaseClient.setSize(400, 75 * users.size());
         databaseClient.repaint();
@@ -48,7 +46,7 @@ public class EnableUserListener implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         try {
             databaseClient.getContentPane().removeAll();
-            ArrayList<UserDto> users = getUserDtos();
+            java.util.List<UserDto> users = getUserDtos();
             JPanel mainPanel = new JPanel();
             mainPanel.setLayout(new BorderLayout());
             JPanel infoPanel = new JPanel();
@@ -64,11 +62,10 @@ public class EnableUserListener implements ActionListener {
         }
     }
 
-    private ArrayList<UserDto> getUserDtos() throws IOException, ClassNotFoundException {
+    private java.util.List<UserDto> getUserDtos() throws IOException, ClassNotFoundException {
         toServer.writeObject("allUserDtos");
         Object object = fromServer.readObject();
-        ArrayList<UserDto> users = (ArrayList<UserDto>) object;
-        return users;
+        return (java.util.List<UserDto>) object;
     }
 
 }

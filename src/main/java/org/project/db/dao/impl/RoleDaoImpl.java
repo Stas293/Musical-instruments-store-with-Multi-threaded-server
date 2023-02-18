@@ -1,7 +1,6 @@
 package org.project.db.dao.impl;
 
 import org.intellij.lang.annotations.Language;
-import org.jetbrains.annotations.Nullable;
 import org.project.db.dao.RoleDao;
 import org.project.db.dao.mapper.RoleMapper;
 import org.project.db.dto.UserDto;
@@ -38,9 +37,6 @@ public class RoleDaoImpl implements RoleDao {
         } catch (SQLException e) {
             logger.warning(e.getMessage());
             connection.rollback();
-        } finally {
-            connection.setAutoCommit(true);
-            close();
         }
         return Optional.empty();
     }
@@ -73,9 +69,6 @@ public class RoleDaoImpl implements RoleDao {
         } catch (SQLException e) {
             logger.warning(e.getMessage());
             connection.rollback();
-        } finally {
-            connection.setAutoCommit(true);
-            close();
         }
     }
 
@@ -89,18 +82,6 @@ public class RoleDaoImpl implements RoleDao {
         } catch (SQLException e) {
             logger.warning(e.getMessage());
             connection.rollback();
-        } finally {
-            connection.setAutoCommit(true);
-            close();
-        }
-    }
-
-    @Override
-    public void close() {
-        try {
-            connection.close();
-        } catch (SQLException e) {
-            logger.log(Level.WARNING, e.getMessage(), e);
         }
     }
 
@@ -110,20 +91,16 @@ public class RoleDaoImpl implements RoleDao {
         return getRole(code, queryString);
     }
 
-    @Nullable
     private Optional<Role> getRole(String code, String queryString) {
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             preparedStatement.setString(1, code);
             ResultSet resultSet = preparedStatement.executeQuery();
             boolean exist = resultSet.next();
-            if (!exist) {
-                return null;
+            if (exist) {
+                return Optional.of(new RoleMapper().extractFromResultSet(resultSet));
             }
-            return Optional.of(new RoleMapper().extractFromResultSet(resultSet));
         } catch (SQLException e) {
             logger.log(Level.WARNING, e.getMessage(), e);
-        } finally {
-            close();
         }
         return Optional.empty();
     }
@@ -136,7 +113,11 @@ public class RoleDaoImpl implements RoleDao {
 
     @Override
     public List<Role> getRolesForUser(UserDto userDto) {
-        @Language("MySQL") String queryString = "select r.* from user_list u join user_role ur on (u.user_id=ur.user_id) left join role r on (ur.role_id=r.role_id) where u.login = ?";
+        @Language("MySQL") String queryString =
+                "select r.* from user_list u " +
+                        "join user_role ur on (u.user_id=ur.user_id) " +
+                        "left join role r on (ur.role_id=r.role_id) " +
+                        "where u.login = ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
             preparedStatement.setString(1, userDto.login());
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -147,16 +128,14 @@ public class RoleDaoImpl implements RoleDao {
             return roles;
         } catch (SQLException e) {
             logger.log(Level.WARNING, e.getMessage(), e);
-            close();
         }
         return Collections.emptyList();
     }
 
     @Override
-    public List<Role> insertRoleForUser(UserDto userDto, String roleName) throws SQLException {
+    public List<Role> insertRoleForUser(UserDto userDto, String roleName) {
         @Language("MySQL") String queryString = "INSERT INTO user_role (user_id, role_id) VALUES (?, ?)";
         try (PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
-            connection.setAutoCommit(false);
             @Language("MySQL") String idUser = "SELECT user_id FROM user_list WHERE login = ?";
             try (PreparedStatement preparedStatement1 = connection.prepareStatement(idUser)) {
                 preparedStatement1.setString(1, userDto.login());
@@ -175,11 +154,8 @@ public class RoleDaoImpl implements RoleDao {
             connection.commit();
         } catch (SQLException e) {
             logger.log(Level.WARNING, e.getMessage(), e);
-        } finally {
-            connection.setAutoCommit(true);
-            close();
         }
-        return null;
+        return getRolesForUser(userDto);
     }
 
     @Override
@@ -194,7 +170,6 @@ public class RoleDaoImpl implements RoleDao {
             return roles;
         } catch (SQLException e) {
             logger.log(Level.WARNING, e.getMessage(), e);
-            close();
         }
         return Collections.emptyList();
     }

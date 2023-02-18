@@ -1,4 +1,4 @@
-package org.project.db.server_controller.command;
+package org.project.db.server_controller;
 
 import java.io.IOException;
 

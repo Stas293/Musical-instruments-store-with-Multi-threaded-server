@@ -12,8 +12,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class EnableUserSendServer implements ActionListener {
-    private final JButton btEnable;
     private static final Logger logger = Logger.getLogger(EnableUserSendServer.class.getName());
+    private final JButton btEnable;
     private final ObjectOutputStream toServer;
     private final ObjectInputStream fromServer;
 

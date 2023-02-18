@@ -18,7 +18,8 @@ public class SendPhone implements ActionListener {
     private final ObjectInputStream fromServer;
     private final DatabaseClient databaseClient;
 
-    public SendPhone(JTextField tfPhone, ObjectOutputStream toServer, ObjectInputStream fromServer, DatabaseClient databaseClient) {
+    public SendPhone(JTextField tfPhone, ObjectOutputStream toServer, ObjectInputStream fromServer,
+                     DatabaseClient databaseClient) {
         this.tfPhone = tfPhone;
         this.toServer = toServer;
         this.fromServer = fromServer;

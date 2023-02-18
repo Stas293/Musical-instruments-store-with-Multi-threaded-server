@@ -18,11 +18,10 @@ import java.util.logging.Logger;
 import java.util.stream.IntStream;
 
 public class ShowOrdersByUserListener implements ActionListener {
+    private static final Logger logger = Logger.getLogger(ShowOrdersByUserListener.class.getName());
     private final DatabaseClient databaseClient;
     private final ObjectOutputStream toServer;
     private final ObjectInputStream fromServer;
-
-    private static final Logger logger = Logger.getLogger(ShowOrdersByUserListener.class.getName());
 
     public ShowOrdersByUserListener(DatabaseClient databaseClient, ObjectOutputStream toServer, ObjectInputStream fromServer) {
         this.databaseClient = databaseClient;
@@ -68,7 +67,7 @@ public class ShowOrdersByUserListener implements ActionListener {
             return (event) -> {
                 try {
                     String userLogin = tfTitle.getText().trim();
-                    ArrayList<Order> orders = getOrders(userLogin);
+                    java.util.List<Order> orders = getOrders(userLogin);
                     mainPanel.removeAll();
                     mainPanel.add(controlPanel, BorderLayout.NORTH);
                     mainPanel.add(btBack, BorderLayout.SOUTH);
@@ -76,7 +75,11 @@ public class ShowOrdersByUserListener implements ActionListener {
                     databaseClient.add(mainPanel);
                     if (!orders.isEmpty()) {
                         JPanel infoPanel = new JPanel();
-                        int size = orders.stream().mapToInt(value -> (int) IntStream.range(0, value.getInstruments().size()).count()).sum();
+                        int size = orders.stream()
+                                .mapToInt(value ->
+                                        (int) IntStream.range(0, value.getInstruments().size())
+                                                .count())
+                                .sum();
                         JLabel instrumentQuantity = ShowOrdersListener.addJlabels(infoPanel, size);
                         ShowAllOrdersListener.addArrayToPanel(orders, mainPanel, infoPanel, instrumentQuantity);
                         databaseClient.add(mainPanel);
@@ -95,12 +98,12 @@ public class ShowOrdersByUserListener implements ActionListener {
             };
         }
 
-        private ArrayList<Order> getOrders(String userLogin) throws IOException, ClassNotFoundException {
-            ArrayList<Order> orders = new ArrayList<>();
+        private java.util.List<Order> getOrders(String userLogin) throws IOException, ClassNotFoundException {
+            java.util.List<Order> orders = new ArrayList<>();
             if (!userLogin.isEmpty()) {
                 toServer.writeObject("getOrderByUser");
                 toServer.writeObject(new UserDto(userLogin));
-                orders = (ArrayList<Order>) fromServer.readObject();
+                orders = (java.util.List<Order>) fromServer.readObject();
             }
             return orders;
         }

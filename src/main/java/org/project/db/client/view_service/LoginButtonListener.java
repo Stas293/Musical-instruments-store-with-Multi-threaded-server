@@ -14,12 +14,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class LoginButtonListener implements ActionListener {
+    private static final Logger logger = Logger.getLogger(LoginButtonListener.class.getName());
     private final DatabaseClient databaseClient;
     private final ObjectOutputStream toServer;
     private final JTextField tfLogin;
     private final JTextField tfPassword;
-
-    private static final Logger logger = Logger.getLogger(LoginButtonListener.class.getName());
 
     public LoginButtonListener(DatabaseClient databaseClient, ObjectOutputStream toServer, ObjectInputStream fromServer, JTextField tfLogin, JTextField tfPassword) {
         this.databaseClient = databaseClient;
